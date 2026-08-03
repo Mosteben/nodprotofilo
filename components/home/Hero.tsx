@@ -78,7 +78,9 @@ export function Hero() {
             transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
             className="absolute -bottom-6 -right-6 bg-paper text-navy rounded-2xl shadow-soft px-6 py-4"
           >
-            <p className="font-display text-lg">"الكتابة أعمق طرق الفهم"</p>
+            <p className="font-display text-lg">
+  &ldquo;الكتابة أعمق طرق الفهم&rdquo;
+</p>
           </motion.div>
         </motion.div>
       </div>
