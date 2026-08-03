@@ -11,12 +11,13 @@ export function generateStaticParams() {
   return BOOKS.map((b) => ({ slug: b.slug }));
 }
 
-export function generateMetadata({
+export async function generateMetadata({
   params,
 }: {
-  params: { slug: string };
-}): Metadata {
-  const book = BOOKS.find((b) => b.slug === params.slug);
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const book = BOOKS.find((b) => b.slug === slug);
 
   if (!book) return {};
 
@@ -26,12 +27,13 @@ export function generateMetadata({
   };
 }
 
-export default function BookPage({
+export default async function BookPage({
   params,
 }: {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }) {
-  const book = BOOKS.find((b) => b.slug === params.slug);
+  const { slug } = await params;
+  const book = BOOKS.find((b) => b.slug === slug);
 
   if (!book) notFound();
 
@@ -121,8 +123,8 @@ export default function BookPage({
               </h3>
 
               <p className="text-sm text-navy/70 leading-loose font-ui">
-                <strong>ماجدولين</strong> هي رواية أدبية تأخذ القارئ في رحلة
-                إنسانية مليئة بالمشاعر والصراعات والأحلام، حيث تمتزج
+                <strong>{book.title}</strong> هي رواية أدبية تأخذ القارئ في
+                رحلة إنسانية مليئة بالمشاعر والصراعات والأحلام، حيث تمتزج
                 الرومانسية بالغموض في سردٍ هادئ وأسلوبٍ أدبي مميز.
               </p>
 

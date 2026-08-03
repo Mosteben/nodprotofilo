@@ -7,14 +7,24 @@ export function generateStaticParams() {
   return LECTURES.map((l) => ({ slug: l.slug }));
 }
 
-export function generateMetadata({ params }: { params: { slug: string } }): Metadata {
-  const lecture = LECTURES.find((l) => l.slug === params.slug);
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const lecture = LECTURES.find((l) => l.slug === slug);
   if (!lecture) return {};
   return { title: lecture.title, description: lecture.description };
 }
 
-export default function LecturePage({ params }: { params: { slug: string } }) {
-  const lecture = LECTURES.find((l) => l.slug === params.slug);
+export default async function LecturePage({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
+  const { slug } = await params;
+  const lecture = LECTURES.find((l) => l.slug === slug);
   if (!lecture) notFound();
 
   return (
