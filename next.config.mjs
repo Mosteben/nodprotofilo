@@ -6,9 +6,9 @@ const nextConfig = {
       { protocol: "https", hostname: "i.ytimg.com" },
     ],
   },
-  experimental: {
+  
     typedRoutes: true,
-  },
+  
 };
 
 export default nextConfig;
