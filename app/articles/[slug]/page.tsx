@@ -38,16 +38,18 @@ function toParagraphs(content: string | string[]): string[] {
   if (Array.isArray(content)) {
     return content.map((p) => p.trim()).filter(Boolean);
   }
-  // النصوص اللي فيها سطر فاضي بين الفقرات بتتقسم عليه،
-  // ولو مفيش سطر فاضي (زي القصائد) هترجع فقرة واحدة وتتعرض بفواصل الأسطر محفوظة
   return content
     .split(/\n\s*\n/)
     .map((p) => p.trim())
     .filter(Boolean);
 }
 
-export default  async function ArticlePage({ params }: { params: { slug: string } }) {
-   const { slug } = await params;
+export default async function ArticlePage({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
+  const { slug } = await params;
 
   const article = ARTICLES.find((a) => a.slug === slug);
   if (!article) notFound();
@@ -124,7 +126,6 @@ export default  async function ArticlePage({ params }: { params: { slug: string 
           <ShareButtons title={article.title} />
         </div>
 
-        {/* Comments placeholder — to be wired to a moderation-friendly provider */}
         <div className="rounded-2xl bg-section p-8 text-center">
           <p className="font-ui text-navy/60">
             قسم التعليقات قيد التجهيز — سيُتاح للقرّاء قريبًا التفاعل مع كل مقالة.
