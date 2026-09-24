@@ -18,7 +18,10 @@ function supabaseImagePattern() {
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  poweredByHeader: false,
+
   images: {
+    formats: ["image/avif", "image/webp"],
     remotePatterns: [
       { protocol: "https", hostname: "images.unsplash.com" },
       { protocol: "https", hostname: "i.ytimg.com" },
@@ -27,6 +30,20 @@ const nextConfig = {
   },
 
   typedRoutes: true,
+
+  async headers() {
+    return [
+      {
+        source: "/:path*",
+        headers: [
+          { key: "X-Content-Type-Options", value: "nosniff" },
+          { key: "X-Frame-Options", value: "SAMEORIGIN" },
+          { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+          { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=()" },
+        ],
+      },
+    ];
+  },
 
   // The blog moved from /articles to /blog; keep old links (and search rankings) working.
   async redirects() {

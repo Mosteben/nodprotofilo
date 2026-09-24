@@ -1,7 +1,11 @@
 "use client";
 
 import { useCallback, useState } from "react";
-import { ImageEditorDialog, type EditorSource } from "./ImageEditorDialog";
+import dynamic from "next/dynamic";
+import type { EditorSource } from "./ImageEditorDialog";
+
+// Loaded on first use: the cropper is only needed once an image is being edited.
+const ImageEditorDialog = dynamic(() => import("./ImageEditorDialog").then((m) => m.ImageEditorDialog), { ssr: false });
 
 type Request = EditorSource & { original?: File; resolve: (file: File | null) => void; revoke: boolean };
 
