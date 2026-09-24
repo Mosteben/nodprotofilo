@@ -1,36 +1,23 @@
 "use client";
 
-import { useMemo, useState, useTransition } from "react";
+import { useState, useTransition } from "react";
 import type { Route } from "next";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { Eye, PencilLine, Send, Save, EyeOff, Trash2, ExternalLink } from "lucide-react";
+import { Send, Save, EyeOff, Trash2, ExternalLink } from "lucide-react";
 import { saveArticle, deleteArticle } from "@/lib/actions/articles";
-import type { FieldErrors } from "@/lib/actions/result";
 import type { ArticleRow, ContentStatus } from "@/types/database";
-import { slugify } from "@/lib/slug";
-import { htmlToText, countWords } from "@/lib/text";
-import { readingTime, cn } from "@/lib/utils";
-import { useUnsavedChangesWarning, toDateTimeLocal, fromDateTimeLocal } from "@/lib/hooks";
+import { toDateTimeLocal, fromDateTimeLocal } from "@/lib/hooks";
 import { Button } from "@/components/ui/Button";
 import { Field, Input, Textarea, describedBy } from "@/components/ui/form";
-import { RichTextEditor } from "@/components/admin/RichTextEditor";
 import { ImageField } from "@/components/admin/media/ImageField";
 import { ConfirmDialog } from "@/components/admin/ConfirmDialog";
 import { StatusBadge } from "@/components/admin/StatusBadge";
+import { SlugField } from "@/components/admin/SlugField";
+import { ContentEditor } from "@/components/admin/ContentEditor";
+import { useCmsForm } from "@/components/admin/useCmsForm";
 
-type FormValues = {
-  title: string;
-  slug: string;
-  excerpt: string;
-  content: string;
-  cover_image_url: string;
-  category: string;
-  tags: string;
-  published_at: string;
-};
-
-function initialValues(article?: ArticleRow): FormValues {
+function initialValues(article?: ArticleRow) {
   return {
     title: article?.title ?? "",
     slug: article?.slug ?? "",
@@ -46,30 +33,20 @@ function initialValues(article?: ArticleRow): FormValues {
 const parseTags = (text: string) =>
   Array.from(new Set(text.split(/[,،]/).map((t) => t.trim()).filter(Boolean)));
 
+function successMessage(from: ContentStatus, to: ContentStatus) {
+  if (to === "published") return from === "published" ? "تم تحديث المقالة" : "تم نشر المقالة";
+  return from === "published" ? "تم إلغاء النشر وحفظ المقالة كمسودة" : "تم حفظ المسودة";
+}
+
 export function ArticleForm({ article, categories }: { article?: ArticleRow; categories: string[] }) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
-  const [values, setValues] = useState(() => initialValues(article));
-  const [saved, setSaved] = useState(values);
+  const { values, set, errors, setErrors, dirty, saved, markSaved, slugProps } = useCmsForm(
+    initialValues(article),
+    Boolean(article)
+  );
   const [status, setStatus] = useState<ContentStatus>(article?.status ?? "draft");
-  const [slugTouched, setSlugTouched] = useState(Boolean(article));
-  const [errors, setErrors] = useState<FieldErrors>({});
-  const [tab, setTab] = useState<"edit" | "preview">("edit");
   const [savingAs, setSavingAs] = useState<ContentStatus | null>(null);
-
-  const dirty = JSON.stringify(values) !== JSON.stringify(saved);
-  useUnsavedChangesWarning(dirty);
-
-  const words = useMemo(() => countWords(htmlToText(values.content)), [values.content]);
-
-  function set<K extends keyof FormValues>(key: K, value: FormValues[K]) {
-    setValues((v) => {
-      const next = { ...v, [key]: value };
-      if (key === "title" && !slugTouched) next.slug = slugify(String(value));
-      return next;
-    });
-    if (errors[key]) setErrors(({ [key]: _removed, ...rest }) => rest);
-  }
 
   function submit(nextStatus: ContentStatus) {
     setSavingAs(nextStatus);
@@ -89,10 +66,9 @@ export function ArticleForm({ article, categories }: { article?: ArticleRow; cat
       }
 
       setErrors({});
+      toast.success(successMessage(status, nextStatus));
       setStatus(result.data.status);
-      setSaved(values);
-      const verb = nextStatus === "published" ? (status === "published" ? "تم تحديث المقالة" : "تم نشر المقالة") : status === "published" ? "تم إلغاء النشر وحفظ المقالة كمسودة" : "تم حفظ المسودة";
-      toast.success(verb);
+      markSaved();
 
       if (!article) router.replace(`/admin/articles/${result.data.id}/edit` as Route);
       else router.refresh();
@@ -107,7 +83,7 @@ export function ArticleForm({ article, categories }: { article?: ArticleRow; cat
       return false;
     }
     toast.success("تم حذف المقالة");
-    setSaved(values); // no unsaved-changes prompt on the way out
+    markSaved(); // no unsaved-changes prompt on the way out
     router.push("/admin/articles" as Route);
     router.refresh();
     return true;
@@ -127,38 +103,7 @@ export function ArticleForm({ article, categories }: { article?: ArticleRow; cat
             />
           </Field>
 
-          <Field
-            id="slug"
-            label="الرابط (slug)"
-            error={errors.slug}
-            hint={`يظهر في عنوان الصفحة: /blog/${values.slug || "…"}`}
-            required
-          >
-            <div className="flex gap-2">
-              <Input
-                {...describedBy("slug", errors.slug, "hint")}
-                value={values.slug}
-                onChange={(e) => {
-                  setSlugTouched(true);
-                  set("slug", e.target.value);
-                }}
-                dir="auto"
-                maxLength={200}
-              />
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                className="h-12 shrink-0"
-                onClick={() => {
-                  setSlugTouched(false);
-                  set("slug", slugify(values.title));
-                }}
-              >
-                توليد من العنوان
-              </Button>
-            </div>
-          </Field>
+          <SlugField {...slugProps} pathPrefix="/blog" />
 
           <Field id="excerpt" label="المقتطف" error={errors.excerpt} hint="ملخص قصير يظهر في بطاقات المقالات ونتائج البحث.">
             <Textarea
@@ -171,57 +116,13 @@ export function ArticleForm({ article, categories }: { article?: ArticleRow; cat
           </Field>
         </div>
 
-        <div className="rounded-2xl bg-paper p-6 border border-navy/5">
-          <div className="flex items-center justify-between mb-4 gap-3 flex-wrap">
-            <div role="tablist" aria-label="وضع المحرر" className="inline-flex rounded-full bg-section p-1">
-              {(
-                [
-                  { key: "edit", label: "تحرير", icon: PencilLine },
-                  { key: "preview", label: "معاينة", icon: Eye },
-                ] as const
-              ).map(({ key, label, icon: Icon }) => (
-                <button
-                  key={key}
-                  type="button"
-                  role="tab"
-                  aria-selected={tab === key}
-                  onClick={() => setTab(key)}
-                  className={cn(
-                    "flex items-center gap-2 rounded-full px-4 py-2 font-ui text-sm transition-colors",
-                    tab === key ? "bg-navy text-white" : "text-navy/70 hover:text-navy"
-                  )}
-                >
-                  <Icon className="h-4 w-4" />
-                  {label}
-                </button>
-              ))}
-            </div>
-            <span className="font-ui text-xs text-navy/50">
-              {words} كلمة · {readingTime(words)} دقائق قراءة
-            </span>
-          </div>
-
-          <label htmlFor="content" className="sr-only">
-            المحتوى
-          </label>
-          <div hidden={tab !== "edit"}>
-            <RichTextEditor
-              id="content"
-              value={values.content}
-              onChange={(html) => set("content", html)}
-              invalid={Boolean(errors.content)}
-            />
-          </div>
-          {tab === "preview" && (
-            <article className="rounded-xl border border-navy/10 px-5 py-8 min-h-[360px]">
-              <h1 className="font-display text-3xl md:text-4xl text-navy mb-4">{values.title || "بدون عنوان"}</h1>
-              {values.excerpt && <p className="text-lg text-ink/90 font-medium mb-6">{values.excerpt}</p>}
-              {/* Tiptap output is schema-constrained; it is sanitised again on save. */}
-              <div className="rich-content" dangerouslySetInnerHTML={{ __html: values.content || "<p>لا يوجد محتوى بعد.</p>" }} />
-            </article>
-          )}
-          {errors.content && <p className="font-ui text-sm text-red-600 mt-2">{errors.content}</p>}
-        </div>
+        <ContentEditor
+          value={values.content}
+          onChange={(html) => set("content", html)}
+          error={errors.content}
+          previewTitle={values.title}
+          previewLead={values.excerpt}
+        />
       </div>
 
       <aside className="space-y-6 xl:sticky xl:top-6">

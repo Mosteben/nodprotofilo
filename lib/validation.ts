@@ -49,3 +49,24 @@ export const articleSchema = z.object({
 });
 
 export type ArticleInput = z.input<typeof articleSchema>;
+
+export const projectSchema = z.object({
+  title: titleField,
+  slug: slugField,
+  description: optionalText(500),
+  content: richTextField,
+  cover_image_url: optionalUrl,
+  category: optionalText(60),
+  client: optionalText(120),
+  year: z
+    .string()
+    .trim()
+    .refine((v) => v === "" || (/^\d{4}$/.test(v) && +v >= 1900 && +v <= 2100), "أدخلي سنة صحيحة (مثل 2026).")
+    .transform((v) => (v ? Number(v) : null)),
+  project_url: optionalUrl,
+  github_url: optionalUrl,
+  featured: z.boolean(),
+  published: z.boolean(),
+});
+
+export type ProjectInput = z.input<typeof projectSchema>;

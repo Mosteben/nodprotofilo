@@ -1,6 +1,7 @@
 import { Hero } from "@/components/home/Hero";
 import { Stats } from "@/components/home/Stats";
 import { LatestArticles } from "@/components/home/LatestArticles";
+import { FeaturedProjects } from "@/components/home/FeaturedProjects";
 import { Quote } from "@/components/home/Quote";
 import { LatestVideos } from "@/components/home/LatestVideos";
 import { FeaturedBook } from "@/components/home/FeaturedBook";
@@ -14,6 +15,7 @@ export default function HomePage() {
     <>
       <Hero />
       <Stats />
+      <FeaturedProjects />
       <LatestArticles />
       <Quote />
       <LatestVideos />

@@ -26,6 +26,7 @@ export const NAV_LINKS = [
   { href: "/", label: "الرئيسية" },
   { href: "/about", label: "من أنا" },
   { href: "/blog", label: "المدونة" },
+  { href: "/portfolio", label: "أعمالي" },
   { href: "/lectures", label: "المحاضرات" },
   { href: "/books", label: "الكتب" },
   { href: "/resources", label: "الموارد" },

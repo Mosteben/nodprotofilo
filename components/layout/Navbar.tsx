@@ -38,7 +38,7 @@ export function Navbar() {
           <span className="font-display text-2xl text-navy">{SITE.name}</span>
         </Link>
 
-        <ul className="hidden lg:flex items-center gap-8 font-ui text-sm">
+        <ul className="hidden xl:flex items-center gap-6 font-ui text-sm">
           {NAV_LINKS.map((link) => (
             <li key={link.href}>
               <Link
@@ -56,7 +56,7 @@ export function Navbar() {
           ))}
         </ul>
 
-        <div className="hidden lg:flex items-center gap-3">
+        <div className="hidden xl:flex items-center gap-3">
           <button
             aria-label="بحث"
             className="h-10 w-10 flex items-center justify-center rounded-full text-navy/70 hover:bg-section transition-colors"
@@ -69,7 +69,7 @@ export function Navbar() {
         </div>
 
         <button
-          className="lg:hidden h-10 w-10 flex items-center justify-center text-navy"
+          className="xl:hidden h-10 w-10 flex items-center justify-center text-navy"
           onClick={() => setOpen((v) => !v)}
           aria-label={open ? "إغلاق القائمة" : "فتح القائمة"}
           aria-expanded={open}
@@ -85,7 +85,7 @@ export function Navbar() {
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.3 }}
-            className="lg:hidden overflow-hidden bg-paper border-t border-navy/10"
+            className="xl:hidden overflow-hidden bg-paper border-t border-navy/10"
           >
             <ul className="container flex flex-col py-4 gap-1">
               {NAV_LINKS.map((link) => (

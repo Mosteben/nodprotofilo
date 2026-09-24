@@ -49,6 +49,14 @@ export function Button({
   const classes = cn(buttonVariants({ variant, size }), className);
 
   if (href) {
+    // External links open in a new tab; internal ones use client-side navigation.
+    if (/^https?:\/\//i.test(href)) {
+      return (
+        <a href={href} className={classes} target="_blank" rel="noopener noreferrer">
+          {children}
+        </a>
+      );
+    }
     return (
       <Link href={href as Route} className={classes}>
         {children}
