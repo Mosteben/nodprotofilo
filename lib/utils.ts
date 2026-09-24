@@ -12,3 +12,17 @@ export function formatArabicNumber(n: number): string {
 export function readingTime(wordCount: number): number {
   return Math.max(1, Math.round(wordCount / 180));
 }
+
+export function formatDate(value: string | Date, style: "long" | "short" = "long"): string {
+  return new Date(value).toLocaleDateString("ar-EG", {
+    year: "numeric",
+    month: style === "long" ? "long" : "numeric",
+    day: "numeric",
+  });
+}
+
+export function formatFileSize(bytes: number): string {
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(0)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
