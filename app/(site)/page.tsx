@@ -42,7 +42,7 @@ export default async function HomePage() {
       <Hero content={content} />
       {show.stats && <Stats articleCount={articles.length} />}
       {show.about && (
-        <AboutSection title={content.aboutTitle} description={content.aboutDescription} imageUrl={homepage.aboutImageUrl} />
+        <AboutSection title={content.aboutTitle} description={content.aboutDescription} imageUrl={content.about.imageUrl} />
       )}
       {show.featuredProjects && <FeaturedProjects />}
       {show.latestArticles && <LatestArticles />}

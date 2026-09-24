@@ -1,27 +1,69 @@
 import type { Metadata } from "next";
-import { GraduationCap, PenTool, Target, Sparkles } from "lucide-react";
+import {
+  GraduationCap,
+  PenTool,
+  Target,
+  Sparkles,
+  BookOpen,
+  Heart,
+  Briefcase,
+  Star,
+  MapPin,
+  Globe,
+  type LucideIcon,
+} from "lucide-react";
+import type { AboutIcon } from "@/lib/about";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { RevealOnScroll } from "@/components/ui/RevealOnScroll";
 import { Timeline } from "@/components/shared/Timeline";
 import { CoverImage } from "@/components/shared/CoverImage";
-import { getSiteContent } from "@/lib/data/settings";
+import { socialLinks } from "@/components/shared/SocialLinks";
+import { getPublicProfile, getSiteContent } from "@/lib/data/settings";
 
 export const revalidate = 3600;
 
-export const metadata: Metadata = {
-  title: "من أنا",
-  description: "تعرّف على نادين محمد، طالبة علوم تربوية بجامعة طنطا وكاتبة وصانعة محتوي.",
+export async function generateMetadata(): Promise<Metadata> {
+  const { aboutTitle, aboutDescription, about } = await getSiteContent();
+  return {
+    title: "من أنا",
+    description: aboutDescription,
+    alternates: { canonical: "/about" },
+    openGraph: { title: aboutTitle, description: aboutDescription, type: "profile", images: [{ url: about.imageUrl }] },
+  };
+}
+
+const ICONS: Record<AboutIcon, LucideIcon> = {
+  graduation: GraduationCap,
+  pen: PenTool,
+  target: Target,
+  sparkles: Sparkles,
+  book: BookOpen,
+  heart: Heart,
+  briefcase: Briefcase,
+  star: Star,
 };
 
-const SKILLS = [
-  { label: "الكتابة العلمية المبسّطة", level: 90 },
-  { label: "تصميم محتوى تعليمي", level: 80 },
-  { label: "التواصل والشرح", level: 85 },
-  { label: "البحث والتحضير الأكاديمي", level: 75 },
-];
+function CardList({ items }: { items: { title: string; description: string; label?: string }[] }) {
+  return (
+    <ul className="grid md:grid-cols-2 gap-6">
+      {items.map((item, i) => (
+        <li key={`${item.title}-${i}`}>
+          <RevealOnScroll delay={(i % 2) * 0.08} className="h-full rounded-2xl border border-navy/10 p-6">
+            {item.label && <span className="marginalia text-base">{item.label}</span>}
+            <h3 className="font-display text-xl text-navy mb-2">{item.title}</h3>
+            {item.description && <p className="text-brown/80 leading-relaxed whitespace-pre-line">{item.description}</p>}
+          </RevealOnScroll>
+        </li>
+      ))}
+    </ul>
+  );
+}
 
 export default async function AboutPage() {
-  const content = await getSiteContent();
+  const [content, profile] = await Promise.all([getSiteContent(), getPublicProfile()]);
+  const { about } = content;
+  const links = socialLinks(content.social);
+  const paragraphs = about.longBio.split(/\n\s*\n/).map((p) => p.trim()).filter(Boolean);
 
   return (
     <>
@@ -29,99 +71,133 @@ export default async function AboutPage() {
         <div className="container grid lg:grid-cols-[0.8fr_1.2fr] gap-14 items-center">
           <RevealOnScroll>
             <div className="relative aspect-square max-w-sm mx-auto rounded-full overflow-hidden border-4 border-gold/30">
-              <CoverImage src={content.homepage.aboutImageUrl} alt={content.siteName} priority sizes="384px" />
+              <CoverImage src={about.imageUrl} alt={content.siteName} priority sizes="384px" />
             </div>
           </RevealOnScroll>
           <RevealOnScroll delay={0.15}>
             <span className="marginalia text-gold-light mb-4 inline-block">— نبذة عني</span>
             <h1 className="font-display text-4xl md:text-5xl mb-6 leading-tight">{content.aboutTitle}</h1>
             <p className="text-white/75 text-lg leading-relaxed max-w-xl whitespace-pre-line">{content.aboutDescription}</p>
+            {(profile?.location || profile?.website || links.length > 0) && (
+              <ul className="flex flex-wrap items-center gap-x-6 gap-y-3 mt-8 font-ui text-sm text-white/70">
+                {profile?.location && (
+                  <li className="flex items-center gap-2">
+                    <MapPin className="h-4 w-4 text-gold" />
+                    {profile.location}
+                  </li>
+                )}
+                {profile?.website && (
+                  <li>
+                    <a href={profile.website} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 hover:text-gold">
+                      <Globe className="h-4 w-4 text-gold" />
+                      الموقع الشخصي
+                    </a>
+                  </li>
+                )}
+                {links.map(({ key, label, icon: Icon, url }) => (
+                  <li key={key}>
+                    <a href={url} target="_blank" rel="noopener noreferrer" aria-label={label} className="h-9 w-9 flex items-center justify-center rounded-full bg-white/10 hover:bg-gold hover:text-navy transition-colors">
+                      <Icon className="h-4 w-4" />
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            )}
           </RevealOnScroll>
         </div>
       </section>
 
-      <section className="section-py">
-        <div className="container grid md:grid-cols-2 gap-12">
-          <RevealOnScroll>
-            <div className="flex items-start gap-4 mb-6">
-              <GraduationCap className="h-8 w-8 text-gold-dark shrink-0" />
-              <div>
-                <h2 className="font-display text-2xl text-navy mb-2">التعليم</h2>
-                <p className="text-brown/80 leading-relaxed">
-                  طالبة بكلية التربية، قسم العلوم، جامعة طنطا. أدرس أسس تدريس
-                  العلوم وطرق إيصال المفاهيم العلمية للطلاب بمراحلهم المختلفة.
-                </p>
-              </div>
-            </div>
-          </RevealOnScroll>
-          <RevealOnScroll delay={0.1}>
-            <div className="flex items-start gap-4 mb-6">
-              <PenTool className="h-8 w-8 text-gold-dark shrink-0" />
-              <div>
-                <h2 className="font-display text-2xl text-navy mb-2">رحلة الكتابة</h2>
-                <p className="text-brown/80 leading-relaxed">
-                  بدأت الكتابة كوسيلة لتنظيم أفكاري أثناء المذاكرة، ثم تحوّلت
-                  إلى شغف أشارك من خلاله تجربتي مع كل طالب يبحث عن طريقة أسهل
-                  للفهم.
-                </p>
-              </div>
-            </div>
-          </RevealOnScroll>
-          <RevealOnScroll delay={0.05}>
-            <div className="flex items-start gap-4">
-              <Target className="h-8 w-8 text-gold-dark shrink-0" />
-              <div>
-                <h2 className="font-display text-2xl text-navy mb-2">رسالتي التعليمية</h2>
-                <p className="text-brown/80 leading-relaxed">
-                  أن أجعل مادة العلوم صديقة لا عبئًا، من خلال محتوى مبسّط
-                  ومقالات ومحاضرات تراعي اختلاف أساليب التعلّم بين الطلاب.
-                </p>
-              </div>
-            </div>
-          </RevealOnScroll>
-          <RevealOnScroll delay={0.15}>
-            <div className="flex items-start gap-4">
-              <Sparkles className="h-8 w-8 text-gold-dark shrink-0" />
-              <div>
-                <h2 className="font-display text-2xl text-navy mb-2">اهتماماتي</h2>
-                <p className="text-brown/80 leading-relaxed">
-                  القراءة، الكتابة الإبداعية، تصميم المحتوى التعليمي، ومتابعة
-                  كل جديد في طرق التدريس الحديثة.
-                </p>
-              </div>
-            </div>
-          </RevealOnScroll>
-        </div>
-      </section>
-
-      <section className="section-py bg-section">
-        <div className="container">
-          <SectionHeading eyebrow="المهارات" title="ما الذي أتقنه" />
-          <div className="grid md:grid-cols-2 gap-x-16 gap-y-8 max-w-3xl">
-            {SKILLS.map((skill, i) => (
-              <RevealOnScroll key={skill.label} delay={i * 0.08}>
-                <div className="flex items-center justify-between mb-2 font-ui text-sm text-navy">
-                  <span>{skill.label}</span>
-                  <span className="text-gold-dark font-semibold">{skill.level}٪</span>
-                </div>
-                <div className="h-2 rounded-full bg-navy/10 overflow-hidden">
-                  <div
-                    className="h-full rounded-full bg-gold-fade"
-                    style={{ width: `${skill.level}%` }}
-                  />
-                </div>
-              </RevealOnScroll>
+      {paragraphs.length > 0 && (
+        <section className="section-py">
+          <div className="container-narrow px-6 space-y-6">
+            {paragraphs.map((p, i) => (
+              <p key={i} className="text-lg leading-loose text-ink/80 whitespace-pre-line">
+                {p}
+              </p>
             ))}
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
-      <section className="section-py">
-        <div className="container">
-          <SectionHeading eyebrow="محطات" title="رحلتي بالتفصيل" />
-          <Timeline />
-        </div>
-      </section>
+      {about.highlights.length > 0 && (
+        <section className="section-py">
+          <ul className="container grid md:grid-cols-2 gap-12">
+            {about.highlights.map((h, i) => {
+              const Icon = ICONS[h.icon];
+              return (
+                <li key={`${h.title}-${i}`}>
+                  <RevealOnScroll delay={(i % 2) * 0.1} className="flex items-start gap-4">
+                    <Icon className="h-8 w-8 text-gold-dark shrink-0" aria-hidden="true" />
+                    <div>
+                      <h2 className="font-display text-2xl text-navy mb-2">{h.title}</h2>
+                      <p className="text-brown/80 leading-relaxed">{h.text}</p>
+                    </div>
+                  </RevealOnScroll>
+                </li>
+              );
+            })}
+          </ul>
+        </section>
+      )}
+
+      {about.skills.length > 0 && (
+        <section className="section-py bg-section">
+          <div className="container">
+            <SectionHeading eyebrow="المهارات" title="ما الذي أتقنه" />
+            <ul className="grid md:grid-cols-2 gap-x-16 gap-y-8 max-w-3xl">
+              {about.skills.map((skill, i) => (
+                <li key={`${skill.label}-${i}`}>
+                  <RevealOnScroll delay={i * 0.08}>
+                    <div className="flex items-center justify-between mb-2 font-ui text-sm text-navy">
+                      <span>{skill.label}</span>
+                      <span className="text-gold-dark font-semibold">{skill.level}٪</span>
+                    </div>
+                    <div className="h-2 rounded-full bg-navy/10 overflow-hidden" role="meter" aria-label={skill.label} aria-valuenow={skill.level} aria-valuemin={0} aria-valuemax={100}>
+                      <div className="h-full rounded-full bg-gold-fade" style={{ width: `${skill.level}%` }} />
+                    </div>
+                  </RevealOnScroll>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
+      )}
+
+      {about.services.length > 0 && (
+        <section className="section-py">
+          <div className="container">
+            <SectionHeading eyebrow="الخدمات" title="كيف يمكنني المساعدة" />
+            <CardList items={about.services} />
+          </div>
+        </section>
+      )}
+
+      {about.education.length > 0 && (
+        <section className="section-py">
+          <div className="container">
+            <SectionHeading eyebrow="التعليم" title="المسار الأكاديمي" />
+            <CardList items={about.education.map((e) => ({ label: e.period, title: e.title, description: e.description }))} />
+          </div>
+        </section>
+      )}
+
+      {about.timeline.length > 0 && (
+        <section className="section-py">
+          <div className="container">
+            <SectionHeading eyebrow="محطات" title="رحلتي بالتفصيل" />
+            <Timeline items={about.timeline} />
+          </div>
+        </section>
+      )}
+
+      {about.achievements.length > 0 && (
+        <section className="section-py bg-section">
+          <div className="container">
+            <SectionHeading eyebrow="إنجازات" title="أعتز بها" />
+            <CardList items={about.achievements} />
+          </div>
+        </section>
+      )}
     </>
   );
 }

@@ -4,6 +4,7 @@ import { revalidateTag } from "next/cache";
 import { z } from "zod";
 import { CACHE_TAGS } from "@/lib/cache-tags";
 import { HOMEPAGE_SECTIONS, type HomepageSection } from "@/lib/site-settings";
+import { ABOUT_ICONS, type AboutIcon } from "@/lib/about";
 import {
   ACCENT_PALETTES,
   BACKGROUNDS,
@@ -51,8 +52,6 @@ const homepageInputSchema = z.object({
   hero_title: text(200).min(1, "عنوان القسم الرئيسي مطلوب."),
   hero_description: text(1000),
   hero_image_url: optionalUrl,
-  about_title: text(200),
-  about_description: text(3000),
   homepage: z.object({
     heroEyebrow: text(120),
     heroBadge: text(120),
@@ -60,7 +59,6 @@ const homepageInputSchema = z.object({
     heroButtonUrl: linkTarget,
     heroSecondaryButtonText: text(60),
     heroSecondaryButtonUrl: linkTarget,
-    aboutImageUrl: optionalUrl.transform((v) => v ?? ""),
     quoteText: text(1000),
     quoteAuthor: text(120),
     contactTitle: text(120),
@@ -160,4 +158,31 @@ export async function saveProfile(input: ProfileInput): Promise<ActionResult> {
     revalidateTag(CACHE_TAGS.settings);
     return ok(null);
   });
+}
+
+// --- About page --------------------------------------------------------------
+
+const item = <S extends z.ZodRawShape>(shape: S) => z.array(z.object(shape)).max(40, "40 عنصرًا كحد أقصى.");
+
+const aboutInputSchema = z.object({
+  about_title: text(200),
+  about_description: text(3000),
+  about: z.object({
+    imageUrl: optionalUrl.transform((v) => v ?? ""),
+    longBio: text(10000),
+    highlights: item({ icon: z.enum(Object.keys(ABOUT_ICONS) as [AboutIcon, ...AboutIcon[]]), title: text(120).min(1, "العنوان مطلوب."), text: text(1000) }),
+    skills: item({ label: text(120).min(1, "اسم المهارة مطلوب."), level: z.number().int().min(0).max(100) }),
+    timeline: item({ year: text(40), title: text(160).min(1, "العنوان مطلوب."), description: text(1000) }),
+    education: item({ period: text(60), title: text(160).min(1, "العنوان مطلوب."), description: text(1000) }),
+    achievements: item({ title: text(160).min(1, "العنوان مطلوب."), description: text(1000) }),
+    services: item({ title: text(160).min(1, "العنوان مطلوب."), description: text(1000) }),
+  }),
+});
+
+export type AboutInput = z.input<typeof aboutInputSchema>;
+
+export async function saveAboutContent(input: AboutInput): Promise<ActionResult> {
+  const parsed = aboutInputSchema.safeParse(input);
+  if (!parsed.success) return fromZodError(parsed.error);
+  return saveSettings(parsed.data);
 }

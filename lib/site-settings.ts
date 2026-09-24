@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { SITE } from "@/lib/constants/site";
 import { DEFAULT_THEME, parseTheme, type ThemeSettings } from "@/lib/theme";
+import { parseAbout, type AboutContent } from "@/lib/about";
 import type { SiteSettingsRow } from "@/types/database";
 
 /** Homepage sections the owner can show or hide, in display order. */
@@ -31,7 +32,6 @@ const homepageSchema = z.object({
   heroButtonUrl: text("/blog", 500),
   heroSecondaryButtonText: text("شاهد المحاضرات", 60),
   heroSecondaryButtonUrl: text("/lectures", 500),
-  aboutImageUrl: text("/images/profile/profile.jpeg", 2000),
   quoteText: text(
     "يَجُوبُ العقلُ بُحورَ العَوالمِ أجمعَ\nويَتفننُ في تساؤلاتِه المَطرُوحة\nحَتى يُسكِر من نَبيذ الحياة\nويضيعُ بينَ يَقينٍ ووهنٍ عابرٍ\nفلا القلبُ يدرِي ما العِلّةُ\nولا الرُوح تُسكِّنُ المُصاب",
     1000
@@ -82,6 +82,7 @@ export type SiteContent = {
     behance: string;
   };
   homepage: HomepageContent;
+  about: AboutContent;
   theme: ThemeSettings;
 };
 
@@ -104,6 +105,7 @@ export const DEFAULT_SITE_CONTENT: SiteContent = {
     behance: "",
   },
   homepage: parseHomepage({}),
+  about: parseAbout({}),
   theme: DEFAULT_THEME,
 };
 
@@ -132,6 +134,8 @@ export function toSiteContent(row: SiteSettingsRow | null): SiteContent {
       behance: row.behance_url ?? "",
     },
     homepage: parseHomepage(row.homepage),
+    // The About image used to live in the homepage settings; still honoured as a fallback.
+    about: parseAbout(row.about, (row.homepage as { aboutImageUrl?: unknown } | null)?.aboutImageUrl),
     theme: parseTheme(row.theme_settings),
   };
 }

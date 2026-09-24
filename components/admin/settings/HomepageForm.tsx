@@ -23,8 +23,6 @@ export function HomepageForm({ content }: { content: SiteContent }) {
     hero_title: content.heroTitle,
     hero_description: content.heroDescription,
     hero_image_url: content.heroImageUrl,
-    about_title: content.aboutTitle,
-    about_description: content.aboutDescription,
     homepage: content.homepage,
   };
   const { values, set, errors, pending, dirty, submit } = useSettingsForm(initial, saveHomepageContent, "تم حفظ محتوى الصفحة الرئيسية");
@@ -69,16 +67,10 @@ export function HomepageForm({ content }: { content: SiteContent }) {
         </div>
       </Panel>
 
-      <Panel title="نبذة عني" description="تظهر في الصفحة الرئيسية وأعلى صفحة «من أنا».">
-        <Field id="about_title" label="العنوان" error={errors.about_title}>
-          <Input {...describedBy("about_title", errors.about_title)} value={values.about_title} onChange={(e) => set("about_title", e.target.value)} />
-        </Field>
-        <Field id="about_description" label="النص" error={errors.about_description}>
-          <Textarea {...describedBy("about_description", errors.about_description)} rows={5} value={values.about_description} onChange={(e) => set("about_description", e.target.value)} />
-        </Field>
-        <div className="max-w-xs">
-          <ImageField id="about_image" label="الصورة" aspect="aspect-square" value={home.aboutImageUrl} onChange={(url) => setHome("aboutImageUrl", url)} error={errors["homepage.aboutImageUrl"]} />
-        </div>
+      <Panel title="نبذة عني" description="قسم «نبذة عني» في الصفحة الرئيسية يعرض عنوان ونص وصورة صفحة «من أنا».">
+        <Button href="/admin/about" size="sm" variant="outline" className="w-fit">
+          تحرير محتوى «من أنا»
+        </Button>
       </Panel>
 
       <Panel title="الاقتباس">

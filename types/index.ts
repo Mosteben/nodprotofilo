@@ -21,12 +21,6 @@ export interface Book {
   featured?: boolean;
 }
 
-export interface TimelineItem {
-  year: string;
-  title: string;
-  description: string;
-}
-
 export interface Stat {
   label: string;
   value: number;

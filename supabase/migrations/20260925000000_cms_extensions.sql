@@ -244,6 +244,12 @@ $$;
 alter table public.site_settings
   add column if not exists about jsonb not null default '{}'::jsonb;
 
+-- The About image used to be stored in the homepage settings; move it.
+update public.site_settings
+set about = jsonb_set(about, '{imageUrl}', homepage -> 'aboutImageUrl'),
+    homepage = homepage - 'aboutImageUrl'
+where homepage ? 'aboutImageUrl' and not about ? 'imageUrl';
+
 -- -----------------------------------------------------------------------------
 -- Public user accounts: users may edit their own profile, never `is_admin`
 -- -----------------------------------------------------------------------------
