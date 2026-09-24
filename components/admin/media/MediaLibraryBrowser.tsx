@@ -3,8 +3,8 @@
 import { useEffect, useState } from "react";
 import { Search, Loader2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
-import { mediaSearchFilter } from "@/lib/media";
 import type { MediaRow } from "@/types/database";
+import { orIlikeFilter } from "@/lib/utils";
 
 /** Searchable grid of uploaded images; clicking one selects it. */
 export function MediaLibraryBrowser({ onPick }: { onPick: (media: MediaRow) => void }) {
@@ -17,7 +17,7 @@ export function MediaLibraryBrowser({ onPick }: { onPick: (media: MediaRow) => v
     const timer = setTimeout(async () => {
       setState("loading");
       let request = createClient().from("media").select("*").order("created_at", { ascending: false }).limit(60);
-      if (query.trim()) request = request.or(mediaSearchFilter(query));
+      if (query.trim()) request = request.or(orIlikeFilter(["file_name", "alt_text"], query));
       const { data, error } = await request;
       if (cancelled) return;
       if (error) return setState("error");

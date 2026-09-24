@@ -57,12 +57,6 @@ export function buildStoragePath(fileName: string, type: AllowedImageType): stri
   return `${now.getFullYear()}/${month}/${crypto.randomUUID()}-${safeBaseName(fileName)}.${ext}`;
 }
 
-/** PostgREST `or` filter searching file name and alt text (reserved characters removed). */
-export function mediaSearchFilter(q: string): string {
-  const term = q.replace(/[,()"\\%_*]/g, " ").trim();
-  return `file_name.ilike.*${term}*,alt_text.ilike.*${term}*`;
-}
-
 /** Storage keys produced by buildStoragePath — anything else is rejected server-side. */
 export const STORAGE_PATH_PATTERN =
   /^\d{4}\/\d{2}\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}-[a-z0-9-]{1,60}\.(jpg|png|webp|gif|avif)$/;

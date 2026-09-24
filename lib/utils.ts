@@ -35,3 +35,9 @@ export function isUuid(value: string): boolean {
 export function likePattern(q: string): string {
   return `%${q.replace(/[\\%_]/g, (c) => `\\${c}`)}%`;
 }
+
+/** PostgREST `or` filter: case-insensitive "contains" over several columns (reserved characters removed). */
+export function orIlikeFilter(columns: string[], q: string): string {
+  const term = q.replace(/[,()"\\%_*]/g, " ").trim();
+  return columns.map((column) => `${column}.ilike.*${term}*`).join(",");
+}
