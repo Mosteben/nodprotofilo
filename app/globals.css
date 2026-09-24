@@ -85,7 +85,56 @@
   .link-underline:hover {
     background-size: 100% 2px;
   }
-}
+
+  /* Typography for CMS rich text — shared by the admin editor, preview and public pages. */
+  .rich-content {
+    @apply text-lg leading-loose text-ink/80;
+  }
+  .rich-content > * + * {
+    @apply mt-6;
+  }
+  .rich-content h2 {
+    @apply font-display text-3xl text-navy leading-snug mt-12;
+  }
+  .rich-content h3 {
+    @apply font-display text-2xl text-navy leading-snug mt-10;
+  }
+  .rich-content h4 {
+    @apply font-body font-bold text-xl text-navy mt-8;
+  }
+  .rich-content a {
+    @apply text-gold-dark underline underline-offset-4 decoration-gold/50 hover:decoration-gold;
+  }
+  .rich-content strong {
+    @apply font-bold text-ink;
+  }
+  .rich-content ul,
+  .rich-content ol {
+    @apply ps-7 space-y-2;
+  }
+  .rich-content ul {
+    @apply list-disc marker:text-gold-dark;
+  }
+  .rich-content ol {
+    @apply list-decimal marker:text-gold-dark;
+  }
+  .rich-content blockquote {
+    @apply border-s-4 border-gold ps-6 py-2 font-display text-2xl text-navy/80 leading-relaxed;
+  }
+  .rich-content pre {
+    @apply rounded-2xl bg-navy-900 text-white/90 p-5 text-sm leading-relaxed overflow-x-auto;
+    direction: ltr;
+    text-align: left;
+  }
+  .rich-content :not(pre) > code {
+    @apply rounded bg-section px-1.5 py-0.5 text-[0.9em] text-navy;
+  }
+  .rich-content img {
+    @apply w-full h-auto rounded-2xl my-10;
+  }
+  .rich-content hr {
+    @apply border-0 h-px bg-navy/10 my-12;
+  }}
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
