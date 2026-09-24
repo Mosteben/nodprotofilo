@@ -1,65 +1,54 @@
 import type { Metadata } from "next";
-import { Cairo, Tajawal, Aref_Ruqaa } from "next/font/google";
 import { Toaster } from "sonner";
 import "./globals.css";
 import { SITE } from "@/lib/constants/site";
+import { fontVariables } from "@/lib/fonts";
+import { themeCss } from "@/lib/theme";
+import { getSiteContent } from "@/lib/data/settings";
 
-const cairo = Cairo({
-  subsets: ["arabic", "latin"],
-  variable: "--font-body",
-  display: "swap",
-});
+export async function generateMetadata(): Promise<Metadata> {
+  const { siteName, siteDescription, heroImageUrl } = await getSiteContent();
+  return {
+    metadataBase: new URL(SITE.url),
+    title: {
+      default: `${siteName} | ${SITE.tagline}`,
+      template: `%s | ${siteName}`,
+    },
+    description: siteDescription,
+    openGraph: {
+      title: siteName,
+      description: siteDescription,
+      url: SITE.url,
+      siteName,
+      locale: SITE.locale,
+      type: "website",
+      images: [{ url: heroImageUrl, alt: siteName }],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: siteName,
+      description: siteDescription,
+    },
+    alternates: {
+      canonical: "/",
+      types: { "application/rss+xml": `${SITE.url}/rss.xml` },
+    },
+  };
+}
 
-const tajawal = Tajawal({
-  subsets: ["arabic", "latin"],
-  weight: ["400", "500", "700"],
-  variable: "--font-ui",
-  display: "swap",
-});
-
-// Aref Ruqaa: a calligraphic Arabic display face closest to a Diwani feel
-// available on Google Fonts. Used only for large headings — never for body
-// copy — per the brief's typography rule.
-const arefRuqaa = Aref_Ruqaa({
-  subsets: ["arabic"],
-  weight: ["400", "700"],
-  variable: "--font-display",
-  display: "swap",
-});
-
-export const metadata: Metadata = {
-  metadataBase: new URL(SITE.url),
-  title: {
-    default: `${SITE.name} | ${SITE.tagline}`,
-    template: `%s | ${SITE.name}`,
-  },
-  description: SITE.description,
-  openGraph: {
-    title: SITE.name,
-    description: SITE.description,
-    url: SITE.url,
-    siteName: SITE.name,
-    locale: SITE.locale,
-    type: "website",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: SITE.name,
-    description: SITE.description,
-  },
-  alternates: {
-    canonical: SITE.url,
-    types: { "application/rss+xml": `${SITE.url}/rss.xml` },
-  },
-};
-
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const { theme } = await getSiteContent();
+
   return (
-    <html lang="ar" dir="rtl" className={`${cairo.variable} ${tajawal.variable} ${arefRuqaa.variable}`}>
+    <html lang="ar" dir="rtl" className={fontVariables}>
+      <head>
+        {/* Appearance settings → CSS variables (preset values only, see lib/theme.ts). */}
+        <style id="theme-vars" dangerouslySetInnerHTML={{ __html: themeCss(theme) }} />
+      </head>
       <body className="min-h-screen flex flex-col">
         {children}
         <Toaster dir="rtl" position="top-center" richColors closeButton toastOptions={{ className: "font-ui" }} />

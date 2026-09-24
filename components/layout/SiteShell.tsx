@@ -3,9 +3,12 @@ import { Footer } from "@/components/layout/Footer";
 import { ReadingProgressBar } from "@/components/shared/ReadingProgressBar";
 import { BackToTop } from "@/components/shared/BackToTop";
 import { WhatsAppButton } from "@/components/shared/WhatsAppButton";
+import { getSiteContent } from "@/lib/data/settings";
 
 /** Public-site chrome: navigation, footer and floating buttons around the page content. */
-export function SiteShell({ children }: { children: React.ReactNode }) {
+export async function SiteShell({ children }: { children: React.ReactNode }) {
+  const content = await getSiteContent();
+
   return (
     <>
       <ReadingProgressBar />
@@ -15,13 +18,13 @@ export function SiteShell({ children }: { children: React.ReactNode }) {
       >
         تخطَّ إلى المحتوى
       </a>
-      <Navbar />
+      <Navbar siteName={content.siteName} />
       <main id="main-content" className="flex-1">
         {children}
       </main>
-      <Footer />
+      <Footer content={content} />
       <BackToTop />
-      <WhatsAppButton />
+      {content.social.whatsapp && <WhatsAppButton href={content.social.whatsapp} />}
     </>
   );
 }

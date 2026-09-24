@@ -22,6 +22,9 @@
     --color-section: 248 248 248;
     --radius-card: 1rem;
     --radius-btn: 9999px;
+    --font-display: var(--font-aref-ruqaa);
+    --font-body: var(--font-cairo);
+    --font-ui: var(--font-tajawal);
   }
 
   html {

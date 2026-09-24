@@ -6,10 +6,10 @@ import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X, Search, PenLine } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { NAV_LINKS, SITE } from "@/lib/constants/site";
+import { NAV_LINKS } from "@/lib/constants/site";
 import { Button } from "@/components/ui/Button";
 
-export function Navbar() {
+export function Navbar({ siteName }: { siteName: string }) {
   const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
@@ -35,7 +35,7 @@ export function Navbar() {
       <nav className="container flex h-20 items-center justify-between">
         <Link href="/" className="flex items-center gap-2 group">
           <PenLine className="h-6 w-6 text-gold-dark transition-transform group-hover:-rotate-12" />
-          <span className="font-display text-2xl text-navy">{SITE.name}</span>
+          <span className="font-display text-2xl text-navy">{siteName}</span>
         </Link>
 
         <ul className="hidden xl:flex items-center gap-6 font-ui text-sm">
@@ -57,12 +57,14 @@ export function Navbar() {
         </ul>
 
         <div className="hidden xl:flex items-center gap-3">
-          <button
-            aria-label="بحث"
+          <Link
+            href="/blog"
+            aria-label="البحث في المقالات"
+            title="البحث في المقالات"
             className="h-10 w-10 flex items-center justify-center rounded-full text-navy/70 hover:bg-section transition-colors"
           >
             <Search className="h-5 w-5" />
-          </button>
+          </Link>
           <Button href="/contact" size="sm" variant="gold">
             تواصل معي
           </Button>

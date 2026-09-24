@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import { GraduationCap, PenTool, Target, Sparkles } from "lucide-react";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { RevealOnScroll } from "@/components/ui/RevealOnScroll";
 import { Timeline } from "@/components/shared/Timeline";
-import { SITE } from "@/lib/constants/site";
+import { CoverImage } from "@/components/shared/CoverImage";
+import { getSiteContent } from "@/lib/data/settings";
+
+export const revalidate = 3600;
 
 export const metadata: Metadata = {
   title: "من أنا",
@@ -18,31 +20,22 @@ const SKILLS = [
   { label: "البحث والتحضير الأكاديمي", level: 75 },
 ];
 
-export default function AboutPage() {
+export default async function AboutPage() {
+  const content = await getSiteContent();
+
   return (
     <>
       <section className="bg-navy-fade text-white section-py">
         <div className="container grid lg:grid-cols-[0.8fr_1.2fr] gap-14 items-center">
           <RevealOnScroll>
             <div className="relative aspect-square max-w-sm mx-auto rounded-full overflow-hidden border-4 border-gold/30">
-              <Image
-  src="/images/profile/profile.jpeg"
-  alt={SITE.name}
-  fill
-  className="object-cover"
-/>
+              <CoverImage src={content.homepage.aboutImageUrl} alt={content.siteName} priority sizes="384px" />
             </div>
           </RevealOnScroll>
           <RevealOnScroll delay={0.15}>
             <span className="marginalia text-gold-light mb-4 inline-block">— نبذة عني</span>
-            <h1 className="font-display text-4xl md:text-5xl mb-6 leading-tight">
-              مرحبًا، أنا {SITE.name}
-            </h1>
-            <p className="text-white/75 text-lg leading-relaxed max-w-xl">
-             {SITE.role}، أؤمن أن العلم يستحق أن يُروى بلغة بسيطة تصل
-              لكل عقل. أكتب لأفهم أكثر، وأشارك ما أتعلّمه مع كل من يبحث عن نفس
-              الطريق.
-            </p>
+            <h1 className="font-display text-4xl md:text-5xl mb-6 leading-tight">{content.aboutTitle}</h1>
+            <p className="text-white/75 text-lg leading-relaxed max-w-xl whitespace-pre-line">{content.aboutDescription}</p>
           </RevealOnScroll>
         </div>
       </section>

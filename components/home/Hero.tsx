@@ -1,13 +1,19 @@
 "use client";
 
+import { Fragment } from "react";
 import { motion } from "framer-motion";
-import { ArrowLeft, BookOpen, PlayCircle } from "lucide-react";
-import Image from "next/image";
+import { BookOpen, PlayCircle } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { InkStroke } from "@/components/ui/InkStroke";
-import { SITE } from "@/lib/constants/site";
+import { CoverImage } from "@/components/shared/CoverImage";
+import type { SiteContent } from "@/lib/site-settings";
 
-export function Hero() {
+export function Hero({ content }: { content: SiteContent }) {
+  const { homepage } = content;
+  // Every line but the last is plain; the last line gets the signature ink underline.
+  const lines = content.heroTitle.split("\n").map((l) => l.trim()).filter(Boolean);
+  const lastLine = lines.pop();
+
   return (
     <section className="relative overflow-hidden bg-navy-fade text-white">
       {/* Decorative open-book line art, quiet ambient presence */}
@@ -31,30 +37,44 @@ export function Hero() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
         >
-          <span className="marginalia text-gold-light mb-6 inline-block">
-            —   طالبة  تربية · كاتبة  
-          </span>
+          {homepage.heroEyebrow && (
+            <span className="marginalia text-gold-light mb-6 inline-block">— {homepage.heroEyebrow}</span>
+          )}
           <h1 className="font-display text-5xl md:text-7xl leading-[1.15] mb-6">
-            أكتب عن ما أحلم
-            <br />
-            <span className="relative inline-block">
-              بلغة تصل للقلب
-              <InkStroke className="absolute -bottom-3 right-0 w-full h-4" delay={0.9} />
-            </span>
+            {lines.map((line) => (
+              <Fragment key={line}>
+                {line}
+                <br />
+              </Fragment>
+            ))}
+            {lastLine && (
+              <span className="relative inline-block">
+                {lastLine}
+                <InkStroke className="absolute -bottom-3 right-0 w-full h-4" delay={0.9} />
+              </span>
+            )}
           </h1>
           <p className="text-white/75 text-lg md:text-xl leading-relaxed max-w-xl mb-10 font-body">
-            {SITE.name}، {SITE.role}. أشارك هنا مقالاتي ومحاضراتي وموادي التعليمية،
-            محاولةً أن أجعل كل فكرة علمية معقّدة في متناول كل قارئ.
+            {content.heroDescription}
           </p>
           <div className="flex flex-wrap gap-4">
-            <Button href="/blog" variant="gold" size="lg">
-              <BookOpen className="h-5 w-5" />
-              اقرأ المقالات
-            </Button>
-            <Button href="/lectures" variant="outline" size="lg" className="border-white/30 text-white hover:border-gold hover:text-gold">
-              <PlayCircle className="h-5 w-5" />
-              شاهد المحاضرات
-            </Button>
+            {homepage.heroButtonText && homepage.heroButtonUrl && (
+              <Button href={homepage.heroButtonUrl} variant="gold" size="lg">
+                <BookOpen className="h-5 w-5" />
+                {homepage.heroButtonText}
+              </Button>
+            )}
+            {homepage.heroSecondaryButtonText && homepage.heroSecondaryButtonUrl && (
+              <Button
+                href={homepage.heroSecondaryButtonUrl}
+                variant="outline"
+                size="lg"
+                className="border-white/30 text-white hover:border-gold hover:text-gold"
+              >
+                <PlayCircle className="h-5 w-5" />
+                {homepage.heroSecondaryButtonText}
+              </Button>
+            )}
           </div>
         </motion.div>
 
@@ -64,24 +84,19 @@ export function Hero() {
           transition={{ duration: 0.9, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
           className="relative hidden lg:block"
         >
-         <div className="aspect-[4/5] rounded-[2rem] bg-gradient-to-br from-gold/20 to-transparent border border-white/10 backdrop-blur-sm flex items-center justify-center relative overflow-hidden">
-  <Image
-    src="/images/profile/profile.jpeg"
-    alt={SITE.name}
-    fill
-    className="object-cover"
-  />
-  <div className="absolute inset-6 border border-gold/20 rounded-[1.5rem] pointer-events-none" />
-</div>
-          <motion.div
-            animate={{ y: [0, -14, 0] }}
-            transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
-            className="absolute -bottom-6 -right-6 bg-paper text-navy rounded-2xl shadow-soft px-6 py-4"
-          >
-            <p className="font-display text-lg">
-  &ldquo;الكتابة أعمق طرق الفهم&rdquo;
-</p>
-          </motion.div>
+          <div className="aspect-[4/5] rounded-[2rem] bg-gradient-to-br from-gold/20 to-transparent border border-white/10 backdrop-blur-sm flex items-center justify-center relative overflow-hidden">
+            <CoverImage src={content.heroImageUrl} alt={content.siteName} priority sizes="40vw" />
+            <div className="absolute inset-6 border border-gold/20 rounded-[1.5rem] pointer-events-none" />
+          </div>
+          {homepage.heroBadge && (
+            <motion.div
+              animate={{ y: [0, -14, 0] }}
+              transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
+              className="absolute -bottom-6 -right-6 bg-paper text-navy rounded-2xl shadow-soft px-6 py-4"
+            >
+              <p className="font-display text-lg">&ldquo;{homepage.heroBadge}&rdquo;</p>
+            </motion.div>
+          )}
         </motion.div>
       </div>
 
