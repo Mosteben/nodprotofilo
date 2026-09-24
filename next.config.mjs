@@ -28,6 +28,14 @@ const nextConfig = {
 
   typedRoutes: true,
 
+  // The blog moved from /articles to /blog; keep old links (and search rankings) working.
+  async redirects() {
+    return [
+      { source: "/articles", destination: "/blog", permanent: true },
+      { source: "/articles/:slug", destination: "/blog/:slug", permanent: true },
+    ];
+  },
+
   // Opt-in for machines with little free RAM: `NEXT_BUILD_LOW_MEMORY=1 npm run build`.
   // Has no effect on Vercel unless the variable is set there.
   ...(process.env.NEXT_BUILD_LOW_MEMORY === "1" && {

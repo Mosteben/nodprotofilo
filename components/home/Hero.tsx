@@ -47,7 +47,7 @@ export function Hero() {
             محاولةً أن أجعل كل فكرة علمية معقّدة في متناول كل قارئ.
           </p>
           <div className="flex flex-wrap gap-4">
-            <Button href="/articles" variant="gold" size="lg">
+            <Button href="/blog" variant="gold" size="lg">
               <BookOpen className="h-5 w-5" />
               اقرأ المقالات
             </Button>

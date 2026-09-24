@@ -1,30 +1,25 @@
 import { SITE } from "@/lib/constants/site";
-import type { Article } from "@/types";
+import type { ArticleSummary } from "@/lib/data/articles";
 
-export function ArticleJsonLd({ article }: { article: Article }) {
+/** Serialises JSON-LD safely inside a <script> tag (escapes "<" to prevent breaking out). */
+export function jsonLdScript(data: object) {
+  return { __html: JSON.stringify(data).replace(/</g, "\\u003c") };
+}
+
+export function ArticleJsonLd({ article, url }: { article: ArticleSummary; url: string }) {
   const json = {
     "@context": "https://schema.org",
-    "@type": "Article",
+    "@type": "BlogPosting",
     headline: article.title,
     description: article.excerpt,
-    image: [article.coverImage],
+    image: article.coverImage ? [article.coverImage] : undefined,
     datePublished: article.publishedAt,
-    author: {
-      "@type": "Person",
-      name: SITE.name,
-    },
-    publisher: {
-      "@type": "Person",
-      name: SITE.name,
-    },
-    mainEntityOfPage: `${SITE.url}/articles/${article.slug}`,
+    dateModified: article.updatedAt,
+    keywords: article.tags.join(", ") || undefined,
+    author: { "@type": "Person", name: SITE.name },
+    publisher: { "@type": "Person", name: SITE.name },
+    mainEntityOfPage: url,
   };
 
-  return (
-    <script
-      type="application/ld+json"
-      // eslint-disable-next-line react/no-danger
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(json) }}
-    />
-  );
+  return <script type="application/ld+json" dangerouslySetInnerHTML={jsonLdScript(json)} />;
 }

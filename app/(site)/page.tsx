@@ -7,6 +7,8 @@ import { FeaturedBook } from "@/components/home/FeaturedBook";
 import { Testimonials } from "@/components/home/Testimonials";
 import { Newsletter } from "@/components/home/Newsletter";
 
+export const revalidate = 3600;
+
 export default function HomePage() {
   return (
     <>

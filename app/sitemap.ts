@@ -1,25 +1,20 @@
 import type { MetadataRoute } from "next";
 import { SITE } from "@/lib/constants/site";
-import { ARTICLES, LECTURES, BOOKS } from "@/lib/constants/content";
+import { LECTURES, BOOKS } from "@/lib/constants/content";
+import { getPublishedArticles } from "@/lib/data/articles";
 
-export default function sitemap(): MetadataRoute.Sitemap {
-  const staticRoutes = [
-    "",
-    "/about",
-    "/articles",
-    "/lectures",
-    "/books",
-    "/resources",
-    "/gallery",
-    "/contact",
-  ].map((path) => ({
-    url: `${SITE.url}${path}`,
-    lastModified: new Date(),
-  }));
+export const revalidate = 3600;
 
-  const articleRoutes = ARTICLES.map((a) => ({
-    url: `${SITE.url}/articles/${a.slug}`,
-    lastModified: a.publishedAt,
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  const articles = await getPublishedArticles();
+
+  const staticRoutes = ["", "/about", "/blog", "/lectures", "/books", "/resources", "/gallery", "/contact"].map(
+    (path) => ({ url: `${SITE.url}${path}`, lastModified: new Date() })
+  );
+
+  const articleRoutes = articles.map((a) => ({
+    url: `${SITE.url}/blog/${encodeURIComponent(a.slug)}`,
+    lastModified: a.updatedAt,
   }));
 
   const lectureRoutes = LECTURES.map((l) => ({
@@ -27,10 +22,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     lastModified: l.publishedAt,
   }));
 
-  const bookRoutes = BOOKS.map((b) => ({
-    url: `${SITE.url}/books/${b.slug}`,
-    lastModified: new Date(),
-  }));
+  const bookRoutes = BOOKS.map((b) => ({ url: `${SITE.url}/books/${b.slug}` }));
 
   return [...staticRoutes, ...articleRoutes, ...lectureRoutes, ...bookRoutes];
 }

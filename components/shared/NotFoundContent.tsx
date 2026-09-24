@@ -21,7 +21,7 @@ export function NotFoundContent() {
             العودة للرئيسية
           </Button>
           <Button
-            href="/articles"
+            href="/blog"
             variant="outline"
             size="lg"
             className="border-white/30 text-white hover:border-gold hover:text-gold"

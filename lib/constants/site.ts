@@ -25,7 +25,7 @@ export const SITE = {
 export const NAV_LINKS = [
   { href: "/", label: "الرئيسية" },
   { href: "/about", label: "من أنا" },
-  { href: "/articles", label: "المقالات" },
+  { href: "/blog", label: "المدونة" },
   { href: "/lectures", label: "المحاضرات" },
   { href: "/books", label: "الكتب" },
   { href: "/resources", label: "الموارد" },

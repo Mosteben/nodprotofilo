@@ -1,16 +1,3 @@
-export interface Article {
-  slug: string;
-  title: string;
-  excerpt: string;
-  coverImage: string;
-  images?: string[];
-  content: string | string[]; 
-  category: string;
-  tags: string[];
-  publishedAt: string;
-  wordCount: number;
-}
-
 export interface Lecture {
   slug: string;
   title: string;
