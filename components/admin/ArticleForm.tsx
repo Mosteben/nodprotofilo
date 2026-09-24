@@ -7,7 +7,7 @@ import { toast } from "sonner";
 import { Send, Save, EyeOff, Trash2, ExternalLink } from "lucide-react";
 import { saveArticle, deleteArticle } from "@/lib/actions/articles";
 import type { ArticleRow, ContentStatus } from "@/types/database";
-import { toDateTimeLocal, fromDateTimeLocal } from "@/lib/hooks";
+import { toDateTimeLocal, fromDateTimeLocal } from "@/lib/datetime";
 import { Button } from "@/components/ui/Button";
 import { Field, Input, Textarea, describedBy } from "@/components/ui/form";
 import { ImageField } from "@/components/admin/media/ImageField";
@@ -138,7 +138,7 @@ export function ArticleForm({ article, categories }: { article?: ArticleRow; cat
             id="published_at"
             label="تاريخ النشر"
             error={errors.published_at}
-            hint="اتركيه فارغًا ليُضبط تلقائيًا عند النشر."
+            hint="بتوقيت القاهرة. اتركيه فارغًا ليُضبط تلقائيًا عند النشر."
           >
             <Input
               {...describedBy("published_at", errors.published_at, "hint")}
