@@ -21,16 +21,6 @@ export interface Book {
   featured?: boolean;
 }
 
-export interface Resource {
-  slug: string;
-  title: string;
-  description: string;
-  fileType: "pdf" | "pptx" | "worksheet" | "docx";
-  fileUrl: string;
-  category: string;
-  sizeLabel: string;
-}
-
 export interface TimelineItem {
   year: string;
   title: string;

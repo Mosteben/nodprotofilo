@@ -1,7 +1,6 @@
 import type {
   Lecture,
   Book,
-  Resource,
   TimelineItem,
   Stat,
 } from "@/types";
@@ -126,36 +125,6 @@ export const BOOKS: Book[] = [
     cover: "/images/books/majdouline/1.jpg",
     price: "TODO: راجعي السعر (متوفرة بطبعات كتير، أسعارها مختلفة)",
     pages: 0, // TODO
-  },
-];
-
-export const RESOURCES: Resource[] = [
-  {
-    slug: "mulakhas-al-fasl-al-thani",
-    title: "ملخص الفصل الثاني – العلوم الإعدادية",
-    description: "ملخص مبسّط بالرسومات التوضيحية لأهم دروس الفصل الدراسي الثاني.",
-    fileType: "pdf",
-    fileUrl: "#",
-    category: "ملخصات",
-    sizeLabel: "٢٫٤ MB",
-  },
-  {
-    slug: "worksheet-al-khalaya",
-    title: "ورقة عمل: الخلية ووظائفها",
-    description: "ورقة عمل تفاعلية مع أسئلة تدريبية للمراجعة الذاتية.",
-    fileType: "worksheet",
-    fileUrl: "#",
-    category: "أوراق عمل",
-    sizeLabel: "٨٠٠ KB",
-  },
-  {
-    slug: "presentation-al-taghziya",
-    title: "عرض تقديمي: أساسيات التغذية السليمة",
-    description: "عرض بوربوينت جاهز للاستخدام في الحصص الدراسية أو المراجعة الذاتية.",
-    fileType: "pptx",
-    fileUrl: "#",
-    category: "عروض تقديمية",
-    sizeLabel: "٥٫١ MB",
   },
 ];
 
