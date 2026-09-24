@@ -2,9 +2,12 @@
 
 import { useState } from "react";
 import * as Dialog from "@radix-ui/react-dialog";
+import * as Tabs from "@radix-ui/react-tabs";
 import { X } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Field, Input, describedBy } from "@/components/ui/form";
+import { MediaLibraryBrowser } from "./MediaLibraryBrowser";
+import { MediaUploader } from "./MediaUploader";
 
 export type PickedImage = { url: string; alt: string };
 
@@ -48,7 +51,10 @@ function UrlTab({ onPick }: { onPick: (image: PickedImage) => void }) {
   );
 }
 
-/** Modal for choosing an image (by URL for now; the media library adds more tabs). */
+const tabClass =
+  "px-4 py-2 rounded-full font-ui text-sm text-navy/70 data-[state=active]:bg-navy data-[state=active]:text-white transition-colors";
+
+/** Choose an image from the media library, upload a new one, or paste a URL. */
 export function ImagePickerDialog({
   open,
   onOpenChange,
@@ -80,7 +86,29 @@ export function ImagePickerDialog({
               <X className="h-5 w-5" />
             </Dialog.Close>
           </div>
-          <UrlTab onPick={pick} />
+
+          <Tabs.Root defaultValue="library" dir="rtl">
+            <Tabs.List aria-label="مصدر الصورة" className="inline-flex rounded-full bg-section p-1 mb-5">
+              <Tabs.Trigger value="library" className={tabClass}>
+                المكتبة
+              </Tabs.Trigger>
+              <Tabs.Trigger value="upload" className={tabClass}>
+                رفع
+              </Tabs.Trigger>
+              <Tabs.Trigger value="url" className={tabClass}>
+                رابط
+              </Tabs.Trigger>
+            </Tabs.List>
+            <Tabs.Content value="library">
+              <MediaLibraryBrowser onPick={(m) => pick({ url: m.file_url, alt: m.alt_text ?? "" })} />
+            </Tabs.Content>
+            <Tabs.Content value="upload">
+              <MediaUploader multiple={false} onUploaded={(m) => pick({ url: m.file_url, alt: m.alt_text ?? "" })} />
+            </Tabs.Content>
+            <Tabs.Content value="url">
+              <UrlTab onPick={pick} />
+            </Tabs.Content>
+          </Tabs.Root>
         </Dialog.Content>
       </Dialog.Portal>
     </Dialog.Root>
