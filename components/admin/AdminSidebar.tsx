@@ -17,33 +17,52 @@ import {
   X,
   ExternalLink,
   PenLine,
+  Images,
+  FolderOpen,
+  BookOpen,
+  Video,
+  MessageSquare,
+  UserRound,
 } from "lucide-react";
 import { signOut } from "@/lib/actions/auth";
 import { cn } from "@/lib/utils";
 
-const NAV: { href: string; label: string; icon: typeof LayoutDashboard; badge?: "unread" }[] = [
+type Badge = "messages" | "comments";
+
+const NAV: { href: string; label: string; icon: typeof LayoutDashboard; badge?: Badge }[] = [
   { href: "/admin", label: "الرئيسية", icon: LayoutDashboard },
   { href: "/admin/articles", label: "المقالات", icon: FileText },
   { href: "/admin/projects", label: "المشاريع", icon: Briefcase },
+  { href: "/admin/gallery", label: "معرض الصور", icon: Images },
+  { href: "/admin/resources", label: "الموارد", icon: FolderOpen },
+  { href: "/admin/books", label: "الكتب", icon: BookOpen },
+  { href: "/admin/lectures", label: "المحاضرات", icon: Video },
   { href: "/admin/media", label: "مكتبة الوسائط", icon: ImageIcon },
-  { href: "/admin/messages", label: "الرسائل", icon: Mail, badge: "unread" },
-  { href: "/admin/appearance", label: "الواجهة والمظهر", icon: Palette },
+  { href: "/admin/comments", label: "التعليقات", icon: MessageSquare, badge: "comments" },
+  { href: "/admin/messages", label: "الرسائل", icon: Mail, badge: "messages" },
   { href: "/admin/settings", label: "الإعدادات", icon: Settings },
+  { href: "/admin/appearance", label: "الواجهة والمظهر", icon: Palette },
+  { href: "/admin/about", label: "من أنا", icon: UserRound },
 ];
+
+const BADGE_LABEL: Record<Badge, (n: number) => string> = {
+  messages: (n) => `${n} رسائل غير مقروءة`,
+  comments: (n) => `${n} تعليقات بانتظار المراجعة`,
+};
 
 function isActive(pathname: string, href: string) {
   return href === "/admin" ? pathname === "/admin" : pathname.startsWith(href);
 }
 
-export function AdminSidebar({ unread, email, siteName }: { unread: number; email: string; siteName: string }) {
+export function AdminSidebar({ badges, email, siteName }: { badges: Record<Badge, number>; email: string; siteName: string }) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
 
   useEffect(() => setOpen(false), [pathname]);
 
   const nav = (
-    <nav aria-label="قائمة لوحة التحكم" className="flex flex-col h-full">
-      <ul className="space-y-1 flex-1">
+    <nav aria-label="قائمة لوحة التحكم" className="flex flex-col flex-1 min-h-0">
+      <ul className="space-y-1 flex-1 overflow-y-auto min-h-0">
         {NAV.map(({ href, label, icon: Icon, badge }) => {
           const active = isActive(pathname, href);
           return (
@@ -58,15 +77,15 @@ export function AdminSidebar({ unread, email, siteName }: { unread: number; emai
               >
                 <Icon className="h-5 w-5 shrink-0" />
                 <span className="flex-1">{label}</span>
-                {badge === "unread" && unread > 0 && (
+                {badge && badges[badge] > 0 && (
                   <span
                     className={cn(
                       "min-w-6 h-6 px-2 rounded-full text-xs flex items-center justify-center",
                       active ? "bg-navy text-white" : "bg-gold text-navy"
                     )}
-                    aria-label={`${unread} رسائل غير مقروءة`}
+                    aria-label={BADGE_LABEL[badge](badges[badge])}
                   >
-                    {unread}
+                    {badges[badge]}
                   </span>
                 )}
               </Link>

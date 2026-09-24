@@ -34,15 +34,16 @@ export default async function DashboardLayout({ children }: { children: React.Re
     );
   }
 
-  const [{ count: unread }, { data: settings }] = await Promise.all([
+  const [{ count: unread }, { count: pending }, { data: settings }] = await Promise.all([
     status.supabase.from("messages").select("id", { count: "exact", head: true }).eq("is_read", false),
+    status.supabase.from("comments").select("id", { count: "exact", head: true }).eq("is_approved", false),
     status.supabase.from("site_settings").select("site_name").eq("id", 1).maybeSingle(),
   ]);
 
   return (
     <div className="min-h-screen bg-section lg:flex">
       <AdminSidebar
-        unread={unread ?? 0}
+        badges={{ messages: unread ?? 0, comments: pending ?? 0 }}
         email={status.user.email ?? ""}
         siteName={settings?.site_name || SITE.name}
       />
