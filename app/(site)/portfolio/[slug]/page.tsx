@@ -10,6 +10,7 @@ import { CoverImage } from "@/components/shared/CoverImage";
 import { ProjectCard } from "@/components/portfolio/ProjectCard";
 import { RevealOnScroll } from "@/components/ui/RevealOnScroll";
 import { jsonLdScript } from "@/lib/json-ld";
+import { Comments } from "@/components/comments/Comments";
 
 export const revalidate = 3600;
 
@@ -138,8 +139,10 @@ export default async function ProjectPage({ params }: Props) {
         )}
       </div>
 
+      <Comments contentType="project" contentId={project.id} />
+
       {more.length > 0 && (
-        <section className="section-py bg-section" aria-labelledby="more-projects">
+        <section className="section-py" aria-labelledby="more-projects">
           <div className="container">
             <h2 id="more-projects" className="font-display text-2xl text-navy mb-8">أعمال أخرى</h2>
             <div className="grid md:grid-cols-3 gap-8">

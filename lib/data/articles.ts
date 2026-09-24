@@ -7,6 +7,7 @@ import { readingTime } from "@/lib/utils";
 import type { ArticleRow } from "@/types/database";
 
 export type ArticleSummary = {
+  id: string;
   slug: string;
   title: string;
   excerpt: string;
@@ -25,6 +26,7 @@ const cacheOptions = { tags: [CACHE_TAGS.articles], revalidate: PUBLIC_REVALIDAT
 function toSummary(row: ArticleRow): ArticleSummary {
   const text = htmlToText(row.content);
   return {
+    id: row.id,
     slug: row.slug,
     title: row.title,
     excerpt: row.excerpt || text.slice(0, 180),

@@ -5,6 +5,7 @@ import { sanitizeRichText } from "@/lib/sanitize";
 import type { ProjectRow } from "@/types/database";
 
 export type ProjectSummary = {
+  id: string;
   slug: string;
   title: string;
   description: string | null;
@@ -24,6 +25,7 @@ const cacheOptions = { tags: [CACHE_TAGS.projects], revalidate: PUBLIC_REVALIDAT
 
 function toSummary(row: ProjectRow): ProjectSummary {
   return {
+    id: row.id,
     slug: row.slug,
     title: row.title,
     description: row.description,

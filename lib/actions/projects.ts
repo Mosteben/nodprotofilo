@@ -51,6 +51,7 @@ export async function deleteProject(id: string): Promise<ActionResult> {
     const { error, count } = await supabase.from("projects").delete({ count: "exact" }).eq("id", id);
     if (error) return fromDbError(error);
     if (!count) return fail("المشروع غير موجود أو حُذف بالفعل.");
+    await supabase.from("comments").delete().eq("content_type", "project").eq("content_id", id);
     revalidateTag(CACHE_TAGS.projects);
     return ok(null);
   });

@@ -11,6 +11,7 @@ import { ArticleCard } from "@/components/articles/ArticleCard";
 import { RevealOnScroll } from "@/components/ui/RevealOnScroll";
 import { ArticleJsonLd } from "@/components/shared/ArticleJsonLd";
 import { CoverImage } from "@/components/shared/CoverImage";
+import { Comments } from "@/components/comments/Comments";
 
 export const revalidate = 3600;
 
@@ -118,8 +119,10 @@ export default async function ArticlePage({ params }: Props) {
         </div>
       </div>
 
+      <Comments contentType="article" contentId={article.id} />
+
       {related.length > 0 && (
-        <section className="section-py bg-section mt-20" aria-labelledby="related-heading">
+        <section className="section-py" aria-labelledby="related-heading">
           <div className="container">
             <h2 id="related-heading" className="font-display text-2xl text-navy mb-8">مقالات ذات صلة</h2>
             <div className="grid md:grid-cols-3 gap-8">

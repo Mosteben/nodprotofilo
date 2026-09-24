@@ -8,6 +8,7 @@ import { SITE } from "@/lib/constants/site";
 import { jsonLdScript } from "@/lib/json-ld";
 import { Button } from "@/components/ui/Button";
 import { CoverImage } from "@/components/shared/CoverImage";
+import { Comments } from "@/components/comments/Comments";
 
 export const revalidate = 3600;
 
@@ -120,6 +121,7 @@ export default async function BookPage({ params }: Props) {
           </div>
         </div>
       </article>
+      <Comments contentType="book" contentId={book.id} />
     </>
   );
 }

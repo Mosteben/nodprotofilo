@@ -47,6 +47,7 @@ export async function deleteArticle(id: string): Promise<ActionResult> {
     const { error, count } = await supabase.from("articles").delete({ count: "exact" }).eq("id", id);
     if (error) return fromDbError(error);
     if (!count) return fail("المقالة غير موجودة أو حُذفت بالفعل.");
+    await supabase.from("comments").delete().eq("content_type", "article").eq("content_id", id);
     revalidateTag(CACHE_TAGS.articles);
     return ok(null);
   });
