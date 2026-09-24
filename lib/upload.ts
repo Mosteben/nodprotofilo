@@ -18,7 +18,8 @@ function statusMessage(status: number): string {
 export async function uploadWithProgress(
   path: string,
   file: Blob,
-  onProgress: (fraction: number) => void
+  onProgress: (fraction: number) => void,
+  bucket: string = MEDIA_BUCKET
 ): Promise<void> {
   const env = getSupabaseEnv();
   if (!env) throw new Error("لم يتم إعداد Supabase.");
@@ -30,7 +31,7 @@ export async function uploadWithProgress(
 
   await new Promise<void>((resolve, reject) => {
     const xhr = new XMLHttpRequest();
-    xhr.open("POST", `${env.url}/storage/v1/object/${MEDIA_BUCKET}/${path}`);
+    xhr.open("POST", `${env.url}/storage/v1/object/${bucket}/${path}`);
     xhr.setRequestHeader("Authorization", `Bearer ${session.access_token}`);
     xhr.setRequestHeader("apikey", env.anonKey);
     xhr.setRequestHeader("x-upsert", "false");
@@ -47,8 +48,8 @@ export async function uploadWithProgress(
 }
 
 /** Best-effort cleanup when a file was uploaded but could not be recorded. */
-export async function removeUploadedObject(path: string): Promise<void> {
-  await createClient().storage.from(MEDIA_BUCKET).remove([path]);
+export async function removeUploadedObject(path: string, bucket: string = MEDIA_BUCKET): Promise<void> {
+  await createClient().storage.from(bucket).remove([path]);
 }
 
 export async function readImageSize(file: Blob): Promise<{ width: number | null; height: number | null }> {

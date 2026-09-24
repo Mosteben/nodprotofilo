@@ -17,7 +17,22 @@ export const optionalUrl = z
   .refine((v) => v === "" || /^https?:\/\/[^\s]+$/i.test(v) || /^\/[^/\s]/.test(v), "أدخلي رابطًا صحيحًا يبدأ بـ https://")
   .transform((v) => v || null);
 
-const titleField = z.string().trim().min(1, "العنوان مطلوب.").max(200, "العنوان طويل جدًا.");
+export const titleField = z.string().trim().min(1, "العنوان مطلوب.").max(200, "العنوان طويل جدًا.");
+
+/** Whole number in a range, entered as text; empty → null. */
+export const optionalInt = (min: number, max: number, message: string) =>
+  z
+    .union([z.string(), z.number()])
+    .transform((v) => String(v).trim())
+    .refine((v) => v === "" || (/^\d+$/.test(v) && +v >= min && +v <= max), message)
+    .transform((v) => (v === "" ? null : Number(v)));
+
+/** YYYY-MM-DD or empty → null. */
+export const optionalDate = z
+  .string()
+  .trim()
+  .refine((v) => v === "" || (/^\d{4}-\d{2}-\d{2}$/.test(v) && !Number.isNaN(Date.parse(v))), "تاريخ غير صالح.")
+  .transform((v) => v || null);
 
 export const slugField = z
   .string()

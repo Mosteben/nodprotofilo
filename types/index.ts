@@ -31,13 +31,6 @@ export interface Resource {
   sizeLabel: string;
 }
 
-export interface GalleryImage {
-  id: string;
-  src: string;
-  alt: string;
-  category: string;
-}
-
 export interface TimelineItem {
   year: string;
   title: string;

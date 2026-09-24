@@ -3,6 +3,11 @@ export const CACHE_TAGS = {
   articles: "articles",
   projects: "projects",
   settings: "settings",
+  gallery: "gallery",
+  resources: "resources",
+  books: "books",
+  lectures: "lectures",
+  comments: "comments",
 } as const;
 
 /** Fallback revalidation window for public pages (seconds). */

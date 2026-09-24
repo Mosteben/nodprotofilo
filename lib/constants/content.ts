@@ -2,7 +2,6 @@ import type {
   Lecture,
   Book,
   Resource,
-  GalleryImage,
   TimelineItem,
   Stat,
 } from "@/types";
@@ -158,19 +157,6 @@ export const RESOURCES: Resource[] = [
     category: "عروض تقديمية",
     sizeLabel: "٥٫١ MB",
   },
-];
-
-export const GALLERY: GalleryImage[] = [
-  // ... العناصر الموجودة من قبل (g1 → g6) تفضل زي ما هي
-
-  { id: "g7", src: "/images/gallery/g7-historic-building.png", alt: "واجهة مبنى تاريخي بطراز معماري مميز تحت سماء صافية", category: "لحظات يومية" },
-  { id: "g8", src: "/images/gallery/g8-sky-branches.png", alt: "السماء الزرقاء من بين أغصان الأشجار", category: "لحظات يومية" },
-  { id: "g9", src: "/images/gallery/g9-sky-city.png", alt: "سماء صافية بغيوم متناثرة فوق أسطح المدينة ونخلة", category: "لحظات يومية" },
-  { id: "g10", src: "/images/gallery/g10-green-field.png", alt: "حقل أخضر وسط المدينة تحت أشعة الشمس", category: "لحظات يومية" },
-  { id: "g11", src: "/images/gallery/g11-sunset-clouds.png", alt: "غيوم الغروب الدرامية فوق أسطح المدينة", category: "لحظات يومية" },
-  { id: "g12", src: "/images/gallery/g12-pine-tree.png", alt: "شجرة سرو شامخة تحت سماء زرقاء صافية", category: "لحظات يومية" },
-  { id: "g13", src: "/images/gallery/g13-flower.png", alt: "زهرة برتقالية زاهية وسط أوراق خضراء", category: "لحظات يومية" },
-  { id: "g14", src: "/images/gallery/g14-beach.png", alt: "شاطئ بمياه فيروزية صافية من شرفة مطلة على البحر", category: "لحظات يومية" },
 ];
 
 export const TIMELINE: TimelineItem[] = [
