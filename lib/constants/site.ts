@@ -25,11 +25,11 @@ export const SITE = {
 export const NAV_LINKS = [
   { href: "/", label: "الرئيسية" },
   { href: "/about", label: "من أنا" },
-  { href: "/blog", label: "المدونة" },
   { href: "/portfolio", label: "أعمالي" },
-  { href: "/lectures", label: "المحاضرات" },
-  { href: "/books", label: "الكتب" },
-  { href: "/resources", label: "الموارد" },
+  { href: "/blog", label: "المدونة" },
   { href: "/gallery", label: "معرض الصور" },
+  { href: "/resources", label: "الموارد" },
+  { href: "/books", label: "الكتب" },
+  { href: "/lectures", label: "المحاضرات" },
   { href: "/contact", label: "تواصل معي" },
 ] as const;
