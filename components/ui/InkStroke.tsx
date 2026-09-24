@@ -27,7 +27,7 @@ export function InkStroke({
     >
       <motion.path
         d="M2 14C48 6 96 4 150 8C204 12 252 6 298 10"
-        stroke="#D4AF37"
+        className="stroke-gold"
         strokeWidth="4"
         strokeLinecap="round"
         initial={animate ? { pathLength: 0, opacity: 0 } : undefined}

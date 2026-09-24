@@ -1,11 +1,7 @@
 import type { Metadata } from "next";
 import { Cairo, Tajawal, Aref_Ruqaa } from "next/font/google";
+import { Toaster } from "sonner";
 import "./globals.css";
-import { Navbar } from "@/components/layout/Navbar";
-import { Footer } from "@/components/layout/Footer";
-import { ReadingProgressBar } from "@/components/shared/ReadingProgressBar";
-import { BackToTop } from "@/components/shared/BackToTop";
-import { WhatsAppButton } from "@/components/shared/WhatsAppButton";
 import { SITE } from "@/lib/constants/site";
 
 const cairo = Cairo({
@@ -65,20 +61,8 @@ export default function RootLayout({
   return (
     <html lang="ar" dir="rtl" className={`${cairo.variable} ${tajawal.variable} ${arefRuqaa.variable}`}>
       <body className="min-h-screen flex flex-col">
-        <ReadingProgressBar />
-        <a
-          href="#main-content"
-          className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:right-4 focus:z-[100] focus:bg-navy focus:text-white focus:px-4 focus:py-2 focus:rounded-full"
-        >
-          تخطَّ إلى المحتوى
-        </a>
-        <Navbar />
-        <main id="main-content" className="flex-1">
-          {children}
-        </main>
-        <Footer />
-        <BackToTop />
-        <WhatsAppButton />
+        {children}
+        <Toaster dir="rtl" position="top-center" richColors closeButton toastOptions={{ className: "font-ui" }} />
       </body>
     </html>
   );

@@ -3,6 +3,27 @@
 @tailwind utilities;
 
 @layer base {
+  /* Default theme (navy & gold). Values are RGB channels so Tailwind can apply opacity.
+     The root layout overrides these with the owner's appearance settings. */
+  :root {
+    --color-navy: 11 31 58;
+    --color-navy-50: 234 240 248;
+    --color-navy-100: 207 220 237;
+    --color-navy-400: 39 72 112;
+    --color-navy-600: 18 42 76;
+    --color-navy-900: 8 20 38;
+    --color-gold: 212 175 55;
+    --color-gold-light: 231 202 108;
+    --color-gold-dark: 169 133 42;
+    --color-ink: 17 17 17;
+    --color-brown: 111 78 55;
+    --color-brown-light: 140 106 78;
+    --color-paper: 255 255 255;
+    --color-section: 248 248 248;
+    --radius-card: 1rem;
+    --radius-btn: 9999px;
+  }
+
   html {
     scroll-behavior: smooth;
   }
@@ -13,23 +34,23 @@
   }
 
   ::selection {
-    background-color: #D4AF37;
-    color: #0B1F3A;
+    background-color: rgb(var(--color-gold));
+    color: rgb(var(--color-navy));
   }
 
   ::-webkit-scrollbar {
     width: 10px;
   }
   ::-webkit-scrollbar-track {
-    background: #F8F8F8;
+    background: rgb(var(--color-section));
   }
   ::-webkit-scrollbar-thumb {
-    background: #D4AF37;
+    background: rgb(var(--color-gold));
     border-radius: 999px;
   }
 
   :focus-visible {
-    outline: 2px solid #D4AF37;
+    outline: 2px solid rgb(var(--color-gold));
     outline-offset: 3px;
   }
 
@@ -55,7 +76,7 @@
   }
 
   .link-underline {
-    background-image: linear-gradient(#D4AF37, #D4AF37);
+    background-image: linear-gradient(rgb(var(--color-gold)), rgb(var(--color-gold)));
     background-size: 0% 2px;
     background-position: right bottom;
     background-repeat: no-repeat;

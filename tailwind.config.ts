@@ -1,10 +1,14 @@
 import type { Config } from "tailwindcss";
 
+/** Colours are CSS variables (space-separated RGB channels) so the admin theme can change them. */
+const themed = (name: string) => `rgb(var(--color-${name}) / <alpha-value>)`;
+
 const config: Config = {
   darkMode: "class",
   content: [
     "./app/**/*.{ts,tsx}",
     "./components/**/*.{ts,tsx}",
+    "./lib/**/*.{ts,tsx}",
   ],
   theme: {
     container: {
@@ -15,38 +19,45 @@ const config: Config = {
     extend: {
       colors: {
         navy: {
-          DEFAULT: "#0B1F3A",
-          50: "#EAF0F8",
-          100: "#CFDCED",
-          400: "#274870",
-          600: "#122A4C",
-          900: "#081426",
+          DEFAULT: themed("navy"),
+          50: themed("navy-50"),
+          100: themed("navy-100"),
+          400: themed("navy-400"),
+          600: themed("navy-600"),
+          900: themed("navy-900"),
         },
-        ink: "#111111",
+        ink: themed("ink"),
         gold: {
-          DEFAULT: "#D4AF37",
-          light: "#E7CA6C",
-          dark: "#A9852A",
+          DEFAULT: themed("gold"),
+          light: themed("gold-light"),
+          dark: themed("gold-dark"),
         },
         brown: {
-          DEFAULT: "#6F4E37",
-          light: "#8C6A4E",
+          DEFAULT: themed("brown"),
+          light: themed("brown-light"),
         },
-        paper: "#FFFFFF",
-        section: "#F8F8F8",
+        paper: themed("paper"),
+        section: themed("section"),
       },
       fontFamily: {
         display: ["var(--font-display)", "serif"],
         body: ["var(--font-body)", "sans-serif"],
         ui: ["var(--font-ui)", "sans-serif"],
       },
+      borderRadius: {
+        // Cards and buttons follow the appearance settings.
+        "2xl": "var(--radius-card)",
+        btn: "var(--radius-btn)",
+      },
       backgroundImage: {
-        "gold-fade": "linear-gradient(135deg, #D4AF37 0%, #E7CA6C 50%, #A9852A 100%)",
-        "navy-fade": "linear-gradient(160deg, #0B1F3A 0%, #122A4C 60%, #081426 100%)",
+        "gold-fade":
+          "linear-gradient(135deg, rgb(var(--color-gold)) 0%, rgb(var(--color-gold-light)) 50%, rgb(var(--color-gold-dark)) 100%)",
+        "navy-fade":
+          "linear-gradient(160deg, rgb(var(--color-navy)) 0%, rgb(var(--color-navy-600)) 60%, rgb(var(--color-navy-900)) 100%)",
       },
       boxShadow: {
-        soft: "0 10px 40px -12px rgba(11,31,58,0.18)",
-        gold: "0 8px 30px -8px rgba(212,175,55,0.35)",
+        soft: "0 10px 40px -12px rgb(var(--color-navy) / 0.18)",
+        gold: "0 8px 30px -8px rgb(var(--color-gold) / 0.35)",
       },
       keyframes: {
         "fade-up": {
