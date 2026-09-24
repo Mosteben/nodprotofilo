@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, Search, PenLine } from "lucide-react";
+import { Menu, X, Search, PenLine, UserRound } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { NAV_LINKS } from "@/lib/constants/site";
 import { Button } from "@/components/ui/Button";
@@ -65,6 +65,14 @@ export function Navbar({ siteName }: { siteName: string }) {
           >
             <Search className="h-5 w-5" />
           </Link>
+          <Link
+            href="/account"
+            aria-label="حسابي"
+            title="حسابي"
+            className="h-10 w-10 flex items-center justify-center rounded-full text-navy/70 hover:bg-section transition-colors"
+          >
+            <UserRound className="h-5 w-5" />
+          </Link>
           <Button href="/contact" size="sm" variant="gold">
             تواصل معي
           </Button>
@@ -103,6 +111,12 @@ export function Navbar({ siteName }: { siteName: string }) {
                   </Link>
                 </li>
               ))}
+              <li>
+                <Link href="/account" className="flex items-center gap-2 py-3 font-ui text-base text-navy/80">
+                  <UserRound className="h-4 w-4" />
+                  حسابي
+                </Link>
+              </li>
             </ul>
           </motion.div>
         )}

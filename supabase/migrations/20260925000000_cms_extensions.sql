@@ -278,6 +278,21 @@ create trigger profiles_protect_fields
   before update on public.profiles
   for each row execute function public.protect_profile_fields();
 
+-- New accounts keep the display name given at registration (is_admin stays false).
+create or replace function public.handle_new_user()
+returns trigger
+language plpgsql
+security definer
+set search_path = ''
+as $$
+begin
+  insert into public.profiles (user_id, email, name)
+  values (new.id, new.email, nullif(left(trim(new.raw_user_meta_data ->> 'name'), 120), ''))
+  on conflict (user_id) do nothing;
+  return new;
+end;
+$$;
+
 drop policy if exists "profiles_update_own" on public.profiles;
 create policy "profiles_update_own" on public.profiles
   for update to authenticated
