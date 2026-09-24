@@ -86,7 +86,7 @@ const keyOf = <T extends Record<string, unknown>>(options: T, fallback: keyof T 
   z.enum(Object.keys(options) as [keyof T & string, ...(keyof T & string)[]]).catch(fallback);
 
 /** Unknown or invalid values fall back to the default instead of failing. */
-export const themeSchema = z.object({
+const themeSchema = z.object({
   primary: keyOf(PRIMARY_PALETTES, "navy"),
   accent: keyOf(ACCENT_PALETTES, "gold"),
   background: keyOf(BACKGROUNDS, "white"),

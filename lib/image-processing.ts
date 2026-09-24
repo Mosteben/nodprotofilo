@@ -6,7 +6,7 @@ export type PixelCrop = { x: number; y: number; width: number; height: number };
 
 export type OutputFormat = "image/webp" | "image/jpeg" | "image/png";
 
-export const OUTPUT_EXTENSION: Record<OutputFormat, string> = {
+const OUTPUT_EXTENSION: Record<OutputFormat, string> = {
   "image/webp": "webp",
   "image/jpeg": "jpg",
   "image/png": "png",
@@ -41,7 +41,7 @@ function context(canvas: HTMLCanvasElement) {
 }
 
 /** Size of the bounding box of a width×height rectangle rotated by `rotation` degrees. */
-export function rotatedSize(width: number, height: number, rotation: number) {
+function rotatedSize(width: number, height: number, rotation: number) {
   const rad = (rotation * Math.PI) / 180;
   return {
     width: Math.abs(Math.cos(rad) * width) + Math.abs(Math.sin(rad) * height),

@@ -8,7 +8,7 @@ export type ActionResult<T = null> =
   | { ok: true; data: T }
   | { ok: false; error: string; fieldErrors?: FieldErrors };
 
-export const GENERIC_ERROR = "حدث خطأ غير متوقع. حاولي مرة أخرى بعد قليل.";
+const GENERIC_ERROR = "حدث خطأ غير متوقع. حاولي مرة أخرى بعد قليل.";
 
 export function ok<T>(data: T): ActionResult<T> {
   return { ok: true, data };

@@ -24,7 +24,7 @@ const text = (fallback: string, max: number) => z.string().max(max).catch(fallba
 const shown = z.boolean().catch(true);
 
 /** Extra homepage content stored in site_settings.homepage (JSONB). Defaults = original site. */
-export const homepageSchema = z.object({
+const homepageSchema = z.object({
   heroEyebrow: text("طالبة تربية · كاتبة", 120),
   heroBadge: text("الكتابة أعمق طرق الفهم", 120),
   heroButtonText: text("اقرأ المقالات", 60),
@@ -58,7 +58,7 @@ export const homepageSchema = z.object({
 
 export type HomepageContent = z.output<typeof homepageSchema>;
 
-export function parseHomepage(value: unknown): HomepageContent {
+function parseHomepage(value: unknown): HomepageContent {
   return homepageSchema.parse(value && typeof value === "object" ? value : {});
 }
 

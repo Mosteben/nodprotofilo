@@ -3,7 +3,7 @@ import type { Route } from "next";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-export const ADMIN_PAGE_SIZE = 20;
+const ADMIN_PAGE_SIZE = 20;
 
 /** Parses ?page= into a 1-based page number and the matching Supabase range. */
 export function pageRange(pageParam: string | undefined, pageSize = ADMIN_PAGE_SIZE) {

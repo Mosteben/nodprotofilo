@@ -17,7 +17,7 @@ export const optionalUrl = z
   .refine((v) => v === "" || /^https?:\/\/[^\s]+$/i.test(v) || /^\/[^/\s]/.test(v), "أدخلي رابطًا صحيحًا يبدأ بـ https://")
   .transform((v) => v || null);
 
-export const titleField = z.string().trim().min(1, "العنوان مطلوب.").max(200, "العنوان طويل جدًا.");
+const titleField = z.string().trim().min(1, "العنوان مطلوب.").max(200, "العنوان طويل جدًا.");
 
 export const slugField = z
   .string()
@@ -28,7 +28,7 @@ export const slugField = z
   .regex(SLUG_PATTERN, "استخدمي حروفًا وأرقامًا وشرطات (-) فقط، بدون مسافات.");
 
 /** Rich-text HTML; sanitised again on the server before saving. */
-export const richTextField = z.string().max(500_000, "المحتوى طويل جدًا.");
+const richTextField = z.string().max(500_000, "المحتوى طويل جدًا.");
 
 export const articleSchema = z.object({
   title: titleField,
