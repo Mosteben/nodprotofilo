@@ -2,10 +2,11 @@
 
 import { useRef, useState } from "react";
 import { UploadCloud, CheckCircle2, AlertCircle, Loader2, X } from "lucide-react";
-import { ACCEPT_ATTRIBUTE } from "@/lib/media";
+import { ACCEPT_ATTRIBUTE, isAllowedImageType } from "@/lib/media";
 import type { MediaRow } from "@/types/database";
 import { cn } from "@/lib/utils";
 import { useMediaUpload, type UploadItem } from "./useMediaUpload";
+import { useImageEditor } from "./useImageEditor";
 
 function ItemRow({ item }: { item: UploadItem }) {
   return (
@@ -46,27 +47,25 @@ function ItemRow({ item }: { item: UploadItem }) {
   );
 }
 
-/**
- * Drop zone + file picker. `prepare` can transform each file before upload (e.g. the image
- * editor); returning null skips the file.
- */
+/** Drop zone + file picker, optionally opening the image editor for each file before upload. */
 export function MediaUploader({
   onUploaded,
   multiple = true,
-  prepare,
 }: {
   onUploaded?: (media: MediaRow) => void;
   multiple?: boolean;
-  prepare?: (file: File) => Promise<File | null>;
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [dragging, setDragging] = useState(false);
+  const [editFirst, setEditFirst] = useState(true);
   const { items, upload, clearFinished } = useMediaUpload(onUploaded);
+  const { edit, editor } = useImageEditor();
 
   async function handleFiles(list: FileList | null) {
     const files = Array.from(list ?? []).slice(0, multiple ? 20 : 1);
     for (const file of files) {
-      const ready = prepare ? await prepare(file) : file;
+      // Allowed types open the editor even when too large — compressing them is the point.
+      const ready = editFirst && isAllowedImageType(file.type) ? await edit(file) : file;
       if (ready) await upload(ready);
     }
     if (inputRef.current) inputRef.current.value = "";
@@ -116,6 +115,16 @@ export function MediaUploader({
         />
       </div>
 
+      <label className="flex items-center gap-2 font-ui text-sm text-navy/70 cursor-pointer w-fit">
+        <input
+          type="checkbox"
+          checked={editFirst}
+          onChange={(e) => setEditFirst(e.target.checked)}
+          className="h-4 w-4 accent-[rgb(var(--color-navy))]"
+        />
+        تعديل الصور (قص، تدوير، تصغير، ضغط) قبل الرفع
+      </label>
+
       {items.length > 0 && (
         <div>
           <ul className="space-y-2" aria-live="polite">
@@ -131,6 +140,8 @@ export function MediaUploader({
           )}
         </div>
       )}
+
+      {editor}
     </div>
   );
 }
