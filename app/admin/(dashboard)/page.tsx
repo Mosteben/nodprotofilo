@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { Route } from "next";
-import { FileText, CheckCircle2, PencilLine, Briefcase, Mail, Plus, ArrowLeft } from "lucide-react";
+import { FileText, CheckCircle2, PencilLine, Briefcase, Mail, MessageSquare, Plus, ArrowLeft } from "lucide-react";
 import { requireAdminContext } from "@/lib/auth";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { StatusBadge } from "@/components/admin/StatusBadge";
@@ -13,12 +13,13 @@ export default async function DashboardPage() {
   const count = (query: PromiseLike<{ count: number | null }>) => query.then((r) => r.count ?? 0);
   const articles = () => supabase.from("articles").select("id", { count: "exact", head: true });
 
-  const [total, published, drafts, projects, unread, recentArticles, recentMessages] = await Promise.all([
+  const [total, published, drafts, projects, unread, pendingComments, recentArticles, recentMessages] = await Promise.all([
     count(articles()),
     count(articles().eq("status", "published")),
     count(articles().eq("status", "draft")),
     count(supabase.from("projects").select("id", { count: "exact", head: true })),
     count(supabase.from("messages").select("id", { count: "exact", head: true }).eq("is_read", false)),
+    count(supabase.from("comments").select("id", { count: "exact", head: true }).eq("is_approved", false)),
     supabase
       .from("articles")
       .select("id, title, status, updated_at")
@@ -39,6 +40,7 @@ export default async function DashboardPage() {
     { label: "مسودات", value: drafts, icon: PencilLine, href: "/admin/articles?status=draft" },
     { label: "المشاريع", value: projects, icon: Briefcase, href: "/admin/projects" },
     { label: "رسائل غير مقروءة", value: unread, icon: Mail, href: "/admin/messages?filter=unread" },
+    { label: "تعليقات بانتظار المراجعة", value: pendingComments, icon: MessageSquare, href: "/admin/comments?status=pending" },
   ] as const;
 
   return (
@@ -60,7 +62,7 @@ export default async function DashboardPage() {
         }
       />
 
-      <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-4 mb-10">
+      <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-4 mb-10">
         {stats.map(({ label, value, icon: Icon, href }) => (
           <Link
             key={label}
