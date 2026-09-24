@@ -93,6 +93,86 @@ export type SiteSettingsRow = {
   whatsapp_url: string | null;
   theme_settings: Json;
   homepage: Json;
+  about: Json;
+} & Timestamps;
+
+export type GalleryItemRow = {
+  id: string;
+  media_id: string | null;
+  image_url: string;
+  alt_text: string | null;
+  title: string | null;
+  caption: string | null;
+  category: string | null;
+  sort_order: number;
+  published: boolean;
+} & Timestamps;
+
+export type ResourceRow = {
+  id: string;
+  title: string;
+  description: string | null;
+  category: string | null;
+  author: string | null;
+  file_path: string | null;
+  file_url: string | null;
+  file_name: string | null;
+  mime_type: string | null;
+  file_size: number | null;
+  thumbnail_url: string | null;
+  external_url: string | null;
+  sort_order: number;
+  published: boolean;
+} & Timestamps;
+
+export type BookRow = {
+  id: string;
+  title: string;
+  slug: string;
+  description: string | null;
+  author: string | null;
+  publication_year: number | null;
+  category: string | null;
+  cover_image_url: string | null;
+  pages: number | null;
+  price_label: string | null;
+  purchase_url: string | null;
+  sample_url: string | null;
+  featured: boolean;
+  published: boolean;
+  sort_order: number;
+} & Timestamps;
+
+export type LectureRow = {
+  id: string;
+  title: string;
+  slug: string;
+  description: string | null;
+  speaker: string | null;
+  lecture_date: string | null;
+  category: string | null;
+  youtube_id: string | null;
+  external_url: string | null;
+  thumbnail_url: string | null;
+  duration: string | null;
+  featured: boolean;
+  published: boolean;
+  sort_order: number;
+} & Timestamps;
+
+export type CommentContentType = "article" | "project" | "book" | "lecture";
+
+export type CommentRow = {
+  id: string;
+  user_id: string | null;
+  content_type: CommentContentType;
+  content_id: string;
+  author_name: string;
+  author_email: string | null;
+  body: string;
+  is_anonymous: boolean;
+  is_approved: boolean;
+  is_read: boolean;
 } & Timestamps;
 
 type Generated = "id" | "created_at" | "updated_at";
@@ -135,6 +215,14 @@ export type Database = {
       media: Table<MediaRow, "user_id" | "alt_text" | "width" | "height">;
       messages: Table<MessageRow, "is_read">;
       site_settings: Table<SiteSettingsRow, Exclude<keyof SiteSettingsRow, Generated>>;
+      gallery_items: Table<GalleryItemRow, Exclude<keyof GalleryItemRow, Generated | "image_url">>;
+      resources: Table<ResourceRow, Exclude<keyof ResourceRow, Generated | "title">>;
+      books: Table<BookRow, Exclude<keyof BookRow, Generated | "title" | "slug">>;
+      lectures: Table<LectureRow, Exclude<keyof LectureRow, Generated | "title" | "slug">>;
+      comments: Table<
+        CommentRow,
+        "user_id" | "author_email" | "is_anonymous" | "is_approved" | "is_read"
+      >;
     };
     Views: { [_ in never]: never };
     Functions: {
@@ -149,6 +237,11 @@ export type Database = {
           website: string | null;
         }[];
       };
+      get_approved_comments: {
+        Args: { p_type: string; p_id: string };
+        Returns: { id: string; display_name: string | null; body: string; created_at: string }[];
+      };
+      is_published_content: { Args: { p_type: string; p_id: string }; Returns: boolean };
     };
     Enums: { content_status: ContentStatus };
     CompositeTypes: { [_ in never]: never };
