@@ -7,24 +7,54 @@ import { CACHE_TAGS } from "@/lib/cache-tags";
 import type { ContentStatus } from "@/types/database";
 import { fail, fromDbError, fromZodError, ok, withAdmin, type ActionResult } from "./result";
 
-type Saved = { id: string; slug: string; status: ContentStatus };
+type Saved = {
+  id: string;
+  slug: string;
+  status: ContentStatus;
+  /** Set when the article was saved but its image list could not be. */
+  imagesError?: string;
+};
 
-/** Creates an article (id = null) or updates an existing one. */
+/**
+ * Creates an article (id = null) or updates an existing one, then replaces its ordered
+ * image list atomically (set_article_images also mirrors image #1 into cover_image_url).
+ */
 export async function saveArticle(id: string | null, input: ArticleInput): Promise<ActionResult<Saved>> {
   return withAdmin(async ({ supabase }) => {
     const parsed = articleSchema.safeParse(input);
     if (!parsed.success) return fromZodError(parsed.error);
 
-    const values = { ...parsed.data, content: sanitizeRichText(parsed.data.content) };
+    const { images, ...fields } = parsed.data;
+    const values = {
+      ...fields,
+      content: sanitizeRichText(fields.content),
+      // Kept in step with the primary image for every single-image consumer.
+      cover_image_url: images[0]?.image_url ?? null,
+    };
     const { data, error } = await (id
       ? supabase.from("articles").update(values).eq("id", id)
       : supabase.from("articles").insert(values)
     )
       .select("id, slug, status")
       .single();
-
     if (error) return fromDbError(error);
+
+    const { error: imagesError } = await supabase.rpc("set_article_images", {
+      p_article_id: data.id,
+      p_images: images,
+    });
     revalidateTag(CACHE_TAGS.articles);
+
+    if (imagesError) {
+      console.error("[articles] saving images failed", imagesError.code, imagesError.message);
+      const missing = imagesError.code === "PGRST202" || imagesError.code === "42883";
+      return ok({
+        ...data,
+        imagesError: missing
+          ? "تم حفظ المقالة، لكن صور المقالة لم تُحفظ: شغّلي ترحيل قاعدة البيانات 20260927000000_article_images.sql."
+          : "تم حفظ المقالة، لكن تعذّر حفظ قائمة الصور. حاولي الحفظ مرة أخرى.",
+      });
+    }
     return ok(data);
   });
 }

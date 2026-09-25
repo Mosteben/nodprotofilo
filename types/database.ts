@@ -34,6 +34,18 @@ export type ArticleRow = {
   published_at: string | null;
 } & Timestamps;
 
+/** One image of an article; sort_order 0 is the primary image. */
+export type ArticleImageRow = {
+  id: string;
+  article_id: string;
+  media_id: string | null;
+  image_url: string;
+  storage_path: string | null;
+  alt_text: string | null;
+  sort_order: number;
+  created_at: string;
+};
+
 export type ProjectRow = {
   id: string;
   title: string;
@@ -201,6 +213,7 @@ export type Database = {
         ArticleRow,
         "excerpt" | "content" | "cover_image_url" | "category" | "tags" | "status" | "published_at"
       >;
+      article_images: Table<ArticleImageRow, "media_id" | "storage_path" | "alt_text" | "sort_order">;
       projects: Table<
         ProjectRow,
         | "description"
@@ -244,6 +257,10 @@ export type Database = {
         Returns: { id: string; display_name: string | null; body: string; created_at: string }[];
       };
       is_published_content: { Args: { p_type: string; p_id: string }; Returns: boolean };
+      set_article_images: {
+        Args: { p_article_id: string; p_images: Json };
+        Returns: undefined;
+      };
     };
     Enums: { content_status: ContentStatus };
     CompositeTypes: { [_ in never]: never };

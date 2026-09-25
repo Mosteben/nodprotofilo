@@ -24,7 +24,7 @@ export function ContentEditor({
   const words = useMemo(() => countWords(htmlToText(value)), [value]);
 
   return (
-    <div className="rounded-2xl bg-paper p-6 border border-navy/5">
+    <div className="rounded-2xl bg-paper p-4 sm:p-6 border border-navy/5 min-w-0">
       <div className="flex items-center justify-between mb-4 gap-3 flex-wrap">
         <div role="tablist" aria-label="وضع المحرر" className="inline-flex rounded-full bg-section p-1">
           {(

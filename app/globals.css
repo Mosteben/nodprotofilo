@@ -92,6 +92,8 @@
   /* Typography for CMS rich text — shared by the admin editor, preview and public pages. */
   .rich-content {
     @apply text-lg leading-loose text-ink/80;
+    /* Long words/URLs wrap instead of widening the page. */
+    overflow-wrap: anywhere;
   }
   .rich-content > * + * {
     @apply mt-6;

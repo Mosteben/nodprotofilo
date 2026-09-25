@@ -1,17 +1,23 @@
 import { unstable_cache } from "next/cache";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { createPublicClient } from "@/lib/supabase/public";
 import { CACHE_TAGS, PUBLIC_REVALIDATE_SECONDS } from "@/lib/cache-tags";
 import { sanitizeRichText } from "@/lib/sanitize";
 import { countWords, htmlToText } from "@/lib/text";
 import { readingTime } from "@/lib/utils";
-import type { ArticleRow } from "@/types/database";
+import type { ArticleRow, Database } from "@/types/database";
+
+export type ArticleImage = { url: string; alt: string | null };
 
 export type ArticleSummary = {
   id: string;
   slug: string;
   title: string;
   excerpt: string;
+  /** Primary image (images[0]); used wherever one image is shown. */
   coverImage: string | null;
+  /** All article images in display order. */
+  images: ArticleImage[];
   category: string | null;
   tags: string[];
   publishedAt: string;
@@ -23,20 +29,49 @@ export type ArticleDetail = ArticleSummary & { contentHtml: string };
 
 const cacheOptions = { tags: [CACHE_TAGS.articles], revalidate: PUBLIC_REVALIDATE_SECONDS };
 
-function toSummary(row: ArticleRow): ArticleSummary {
+function toSummary(row: ArticleRow, stored: ArticleImage[] = []): ArticleSummary {
   const text = htmlToText(row.content);
+  // Articles without image rows (or before the article_images migration) keep their single cover.
+  const images = stored.length > 0 ? stored : row.cover_image_url ? [{ url: row.cover_image_url, alt: null }] : [];
   return {
     id: row.id,
     slug: row.slug,
     title: row.title,
     excerpt: row.excerpt || text.slice(0, 180),
-    coverImage: row.cover_image_url,
+    coverImage: images[0]?.url ?? null,
+    images,
     category: row.category,
     tags: row.tags,
     publishedAt: row.published_at ?? row.created_at,
     updatedAt: row.updated_at,
     readingMinutes: readingTime(countWords(text)),
   };
+}
+
+/**
+ * Images of the given articles, grouped by article in display order. Returns an empty map
+ * if the lookup fails (e.g. the article_images migration has not been run yet), so pages
+ * fall back to each article's single cover image instead of failing.
+ */
+async function imagesFor(supabase: SupabaseClient<Database>, ids: string[]): Promise<Map<string, ArticleImage[]>> {
+  const byArticle = new Map<string, ArticleImage[]>();
+  if (ids.length === 0) return byArticle;
+  const { data, error } = await supabase
+    .from("article_images")
+    .select("article_id, image_url, alt_text")
+    .in("article_id", ids)
+    .order("sort_order", { ascending: true })
+    .order("created_at", { ascending: true });
+  if (error) {
+    console.error("[data] article images unavailable, using cover images", error.code, error.message);
+    return byArticle;
+  }
+  for (const row of data) {
+    const list = byArticle.get(row.article_id) ?? [];
+    list.push({ url: row.image_url, alt: row.alt_text });
+    byArticle.set(row.article_id, list);
+  }
+  return byArticle;
 }
 
 const fetchPublishedArticles = unstable_cache(
@@ -49,7 +84,8 @@ const fetchPublishedArticles = unstable_cache(
       .eq("status", "published")
       .order("published_at", { ascending: false });
     if (error) throw new Error(`articles: ${error.message}`);
-    return data.map(toSummary);
+    const images = await imagesFor(supabase, data.map((a) => a.id));
+    return data.map((row) => toSummary(row, images.get(row.id)));
   },
   ["published-articles"],
   cacheOptions
@@ -81,7 +117,8 @@ export const getArticleBySlug = unstable_cache(
       .maybeSingle();
     if (error) throw new Error(`article: ${error.message}`);
     if (!data) return null;
-    return { ...toSummary(data), contentHtml: sanitizeRichText(data.content) };
+    const images = await imagesFor(supabase, [data.id]);
+    return { ...toSummary(data, images.get(data.id)), contentHtml: sanitizeRichText(data.content) };
   },
   ["article-by-slug"],
   cacheOptions

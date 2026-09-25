@@ -12,6 +12,7 @@ import { RevealOnScroll } from "@/components/ui/RevealOnScroll";
 import { ArticleJsonLd } from "@/components/shared/ArticleJsonLd";
 import { CoverImage } from "@/components/shared/CoverImage";
 import { Comments } from "@/components/comments/Comments";
+import { MasonryGallery } from "@/components/gallery/MasonryGallery";
 
 export const revalidate = 3600;
 
@@ -39,13 +40,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       publishedTime: article.publishedAt,
       modifiedTime: article.updatedAt,
       tags: article.tags,
-      images: article.coverImage ? [{ url: article.coverImage, alt: article.title }] : undefined,
+      images: article.images.length ? article.images.map((image) => ({ url: image.url, alt: image.alt ?? article.title })) : undefined,
     },
     twitter: {
       card: article.coverImage ? "summary_large_image" : "summary",
       title: article.title,
       description: article.excerpt,
-      images: article.coverImage ? [article.coverImage] : undefined,
+      images: article.images.length ? article.images.map((image) => image.url) : undefined,
     },
   };
 }
@@ -91,7 +92,7 @@ export default async function ArticlePage({ params }: Props) {
       {article.coverImage && (
         <div className="container-narrow px-6">
           <div className="relative aspect-[16/9] rounded-2xl overflow-hidden mb-12">
-            <CoverImage src={article.coverImage} alt={article.title} priority sizes="(min-width: 768px) 768px, 100vw" />
+            <CoverImage src={article.coverImage} alt={article.images[0]?.alt ?? article.title} priority sizes="(min-width: 768px) 768px, 100vw" />
           </div>
         </div>
       )}
@@ -103,6 +104,25 @@ export default async function ArticlePage({ params }: Props) {
 
         {/* Sanitised on save and again when read (lib/sanitize.ts). */}
         <div className="rich-content" dangerouslySetInnerHTML={{ __html: article.contentHtml }} />
+
+        {/* Article images (separate from images inside the text); only when there is more than one. */}
+        {article.images.length > 1 && (
+          <section className="my-12" aria-labelledby="article-images-heading">
+            <h2 id="article-images-heading" className="font-display text-2xl text-navy mb-6">
+              صور المقالة
+            </h2>
+            <MasonryGallery
+              images={article.images.map((image, i) => ({
+                id: `${article.id}-${i}`,
+                src: image.url,
+                alt: image.alt ?? `${article.title} — صورة ${i + 1}`,
+                title: null,
+                caption: image.alt,
+                category: null,
+              }))}
+            />
+          </section>
+        )}
 
         {article.tags.length > 0 && (
           <ul className="flex flex-wrap gap-2 my-8" aria-label="الوسوم">

@@ -7,23 +7,24 @@ import { toast } from "sonner";
 import { Send, Save, EyeOff, Trash2, ExternalLink } from "lucide-react";
 import { saveArticle, deleteArticle } from "@/lib/actions/articles";
 import type { ArticleRow, ContentStatus } from "@/types/database";
+import type { ArticleImageInput } from "@/lib/validation";
 import { toDateTimeLocal, fromDateTimeLocal } from "@/lib/datetime";
 import { Button } from "@/components/ui/Button";
 import { Field, Input, Textarea, describedBy } from "@/components/ui/form";
-import { ImageField } from "@/components/admin/media/ImageField";
+import { ArticleMediaManager } from "@/components/admin/ArticleMediaManager";
 import { ConfirmDialog } from "@/components/admin/ConfirmDialog";
 import { StatusBadge } from "@/components/admin/StatusBadge";
 import { SlugField } from "@/components/admin/SlugField";
 import { ContentEditor } from "@/components/admin/ContentEditor";
 import { useCmsForm } from "@/components/admin/useCmsForm";
 
-function initialValues(article?: ArticleRow) {
+function initialValues(article: ArticleRow | undefined, images: ArticleImageInput[]) {
   return {
     title: article?.title ?? "",
     slug: article?.slug ?? "",
     excerpt: article?.excerpt ?? "",
     content: article?.content ?? "",
-    cover_image_url: article?.cover_image_url ?? "",
+    images,
     category: article?.category ?? "",
     tags: article?.tags.join("، ") ?? "",
     published_at: toDateTimeLocal(article?.published_at ?? null),
@@ -38,15 +39,26 @@ function successMessage(from: ContentStatus, to: ContentStatus) {
   return from === "published" ? "تم إلغاء النشر وحفظ المقالة كمسودة" : "تم حفظ المسودة";
 }
 
-export function ArticleForm({ article, categories }: { article?: ArticleRow; categories: string[] }) {
+export function ArticleForm({
+  article,
+  images = [],
+  categories,
+}: {
+  article?: ArticleRow;
+  /** The article's images in display order (see lib/article-images.ts). */
+  images?: ArticleImageInput[];
+  categories: string[];
+}) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
-  const { values, set, errors, setErrors, dirty, saved, markSaved, slugProps } = useCmsForm(
-    initialValues(article),
+  const { values, set, update, errors, setErrors, dirty, saved, markSaved, slugProps } = useCmsForm(
+    initialValues(article, images),
     Boolean(article)
   );
   const [status, setStatus] = useState<ContentStatus>(article?.status ?? "draft");
   const [savingAs, setSavingAs] = useState<ContentStatus | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const busy = pending || uploading;
 
   function submit(nextStatus: ContentStatus) {
     setSavingAs(nextStatus);
@@ -66,7 +78,8 @@ export function ArticleForm({ article, categories }: { article?: ArticleRow; cat
       }
 
       setErrors({});
-      toast.success(successMessage(status, nextStatus));
+      if (result.data.imagesError) toast.warning(result.data.imagesError, { duration: 10000 });
+      else toast.success(successMessage(status, nextStatus));
       setStatus(result.data.status);
       markSaved();
 
@@ -90,9 +103,9 @@ export function ArticleForm({ article, categories }: { article?: ArticleRow; cat
   }
 
   return (
-    <form onSubmit={(e) => e.preventDefault()} className="grid xl:grid-cols-[1fr_340px] gap-6 items-start" noValidate>
+    <form onSubmit={(e) => e.preventDefault()} className="grid xl:grid-cols-[minmax(0,1fr)_340px] gap-4 sm:gap-6 items-start" noValidate>
       <div className="space-y-6 min-w-0">
-        <div className="rounded-2xl bg-paper p-6 border border-navy/5 space-y-5">
+        <div className="rounded-2xl bg-paper p-4 sm:p-6 border border-navy/5 space-y-5">
           <Field id="title" label="العنوان" error={errors.title} required>
             <Input
               {...describedBy("title", errors.title)}
@@ -116,6 +129,14 @@ export function ArticleForm({ article, categories }: { article?: ArticleRow; cat
           </Field>
         </div>
 
+        <ArticleMediaManager
+          images={values.images}
+          onChange={(images) => set("images", images)}
+          onAppend={(image) => update("images", (current) => [...current, image])}
+          onBusyChange={setUploading}
+          error={Object.entries(errors).find(([key]) => key.startsWith("images"))?.[1]}
+        />
+
         <ContentEditor
           value={values.content}
           onChange={(html) => set("content", html)}
@@ -125,14 +146,15 @@ export function ArticleForm({ article, categories }: { article?: ArticleRow; cat
         />
       </div>
 
-      <aside className="space-y-6 xl:sticky xl:top-6">
-        <div className="rounded-2xl bg-paper p-6 border border-navy/5 space-y-4">
+      <aside className="space-y-4 sm:space-y-6 xl:sticky xl:top-6 min-w-0">
+        <div className="rounded-2xl bg-paper p-4 sm:p-6 border border-navy/5 space-y-4">
           <div className="flex items-center justify-between">
             <h2 className="font-display text-xl text-navy">النشر</h2>
             <StatusBadge status={status} />
           </div>
 
           {dirty && <p className="font-ui text-xs text-amber-700">لديكِ تغييرات غير محفوظة.</p>}
+          {uploading && <p className="font-ui text-xs text-navy/60">انتظري انتهاء رفع الصور ثم احفظي.</p>}
 
           <Field
             id="published_at"
@@ -151,22 +173,22 @@ export function ArticleForm({ article, categories }: { article?: ArticleRow; cat
           <div className="flex flex-col gap-2 pt-2">
             {status === "published" ? (
               <>
-                <Button type="button" size="sm" loading={savingAs === "published"} disabled={pending} onClick={() => submit("published")}>
+                <Button type="button" size="sm" loading={savingAs === "published"} disabled={busy} onClick={() => submit("published")}>
                   <Save className="h-4 w-4" />
                   تحديث المقالة
                 </Button>
-                <Button type="button" size="sm" variant="outline" loading={savingAs === "draft"} disabled={pending} onClick={() => submit("draft")}>
+                <Button type="button" size="sm" variant="outline" loading={savingAs === "draft"} disabled={busy} onClick={() => submit("draft")}>
                   <EyeOff className="h-4 w-4" />
                   إلغاء النشر
                 </Button>
               </>
             ) : (
               <>
-                <Button type="button" size="sm" variant="gold" loading={savingAs === "published"} disabled={pending} onClick={() => submit("published")}>
+                <Button type="button" size="sm" variant="gold" loading={savingAs === "published"} disabled={busy} onClick={() => submit("published")}>
                   <Send className="h-4 w-4" />
                   نشر
                 </Button>
-                <Button type="button" size="sm" variant="outline" loading={savingAs === "draft"} disabled={pending} onClick={() => submit("draft")}>
+                <Button type="button" size="sm" variant="outline" loading={savingAs === "draft"} disabled={busy} onClick={() => submit("draft")}>
                   <Save className="h-4 w-4" />
                   حفظ كمسودة
                 </Button>
@@ -181,15 +203,7 @@ export function ArticleForm({ article, categories }: { article?: ArticleRow; cat
           </div>
         </div>
 
-        <div className="rounded-2xl bg-paper p-6 border border-navy/5 space-y-5">
-          <ImageField
-            id="cover"
-            label="صورة الغلاف"
-            value={values.cover_image_url}
-            onChange={(url) => set("cover_image_url", url)}
-            error={errors.cover_image_url}
-          />
-
+        <div className="rounded-2xl bg-paper p-4 sm:p-6 border border-navy/5 space-y-5">
           <Field id="category" label="التصنيف" error={errors.category}>
             <Input
               {...describedBy("category", errors.category)}
@@ -220,7 +234,7 @@ export function ArticleForm({ article, categories }: { article?: ArticleRow; cat
             description={<>سيتم حذف «{article.title}» نهائيًا ولا يمكن التراجع عن ذلك.</>}
             onConfirm={handleDelete}
             trigger={
-              <Button type="button" variant="ghost" size="sm" className="text-red-600 w-full" disabled={pending}>
+              <Button type="button" variant="ghost" size="sm" className="text-red-600 w-full" disabled={busy}>
                 <Trash2 className="h-4 w-4" />
                 حذف المقالة
               </Button>

@@ -33,9 +33,15 @@ export function useCmsForm<T extends { title: string; slug: string }>(initial: T
     }
   }
 
+  /** Functional update, for changes that may race (e.g. several uploads finishing). */
+  function update<K extends keyof T>(key: K, fn: (current: T[K]) => T[K]) {
+    setValues((v) => ({ ...v, [key]: fn(v[key]) }));
+  }
+
   return {
     values,
     set,
+    update,
     errors,
     setErrors,
     dirty,

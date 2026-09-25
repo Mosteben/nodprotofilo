@@ -8,7 +8,7 @@ export function ArticleJsonLd({ article, url }: { article: ArticleSummary; url: 
     "@type": "BlogPosting",
     headline: article.title,
     description: article.excerpt,
-    image: article.coverImage ? [article.coverImage] : undefined,
+    image: article.images.length ? article.images.map((image) => image.url) : undefined,
     datePublished: article.publishedAt,
     dateModified: article.updatedAt,
     keywords: article.tags.join(", ") || undefined,

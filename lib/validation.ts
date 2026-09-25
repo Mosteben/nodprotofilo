@@ -45,12 +45,26 @@ export const slugField = z
 /** Rich-text HTML; sanitised again on the server before saving. */
 const richTextField = z.string().max(500_000, "المحتوى طويل جدًا.");
 
+/** One article image as sent by the editor (array order = display order). */
+export const articleImageSchema = z.object({
+  image_url: z
+    .string()
+    .trim()
+    .max(2000, "رابط الصورة طويل جدًا.")
+    .refine((v) => /^https?:\/\/[^\s]+$/i.test(v) || /^\/[^/\s]/.test(v), "رابط صورة غير صالح."),
+  media_id: z.string().uuid().nullable(),
+  storage_path: z.string().trim().max(500).nullable(),
+  alt_text: optionalText(300),
+});
+
+export type ArticleImageInput = z.input<typeof articleImageSchema>;
+
 export const articleSchema = z.object({
   title: titleField,
   slug: slugField,
   excerpt: optionalText(500),
   content: richTextField,
-  cover_image_url: optionalUrl,
+  images: z.array(articleImageSchema),
   category: optionalText(60),
   tags: z
     .array(z.string().trim().min(1).max(40, "الوسم طويل جدًا."))

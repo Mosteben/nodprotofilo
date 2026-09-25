@@ -272,7 +272,8 @@ export function RichTextEditor({
   return (
     <div
       className={cn(
-        "rounded-2xl border bg-paper overflow-hidden transition-colors focus-within:border-gold focus-within:ring-2 focus-within:ring-gold/20",
+        // No overflow-hidden here: it would become the sticky toolbar's container and push it into the text.
+        "rounded-2xl border bg-paper min-w-0 transition-colors focus-within:border-gold focus-within:ring-2 focus-within:ring-gold/20",
         invalid ? "border-red-500" : "border-navy/10"
       )}
     >
@@ -280,7 +281,8 @@ export function RichTextEditor({
         role="toolbar"
         aria-label="أدوات التنسيق"
         aria-controls={id}
-        className="flex items-center gap-0.5 overflow-x-auto border-b border-navy/10 bg-section/50 px-2 py-1.5 sticky top-16 lg:top-0 z-10"
+        // Sticks below the mobile admin header (h-16); wraps instead of overflowing on narrow screens.
+        className="flex flex-wrap items-center gap-0.5 rounded-t-2xl border-b border-navy/10 bg-section px-2 py-1.5 sticky top-16 lg:top-0 z-10"
       >
         <ToolbarButton label="فقرة" active={state.paragraph} onClick={() => chain().setParagraph().run()}>
           <Pilcrow className="h-4 w-4" />

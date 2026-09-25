@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { requireAdminContext } from "@/lib/auth";
 import { distinctCategories } from "@/lib/admin-data";
+import { loadArticleImages } from "@/lib/article-images";
 import { isUuid } from "@/lib/utils";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { ArticleForm } from "@/components/admin/ArticleForm";
@@ -19,12 +20,13 @@ export default async function EditArticlePage({ params }: { params: Promise<{ id
   ]);
   if (error) throw new Error("Failed to load article");
   if (!article) notFound();
+  const images = await loadArticleImages(supabase, article);
 
   return (
     <>
       <AdminPageHeader title="تعديل مقالة" description={article.title} />
       {/* key: reset form state when navigating between articles */}
-      <ArticleForm key={article.id} article={article} categories={categories} />
+      <ArticleForm key={article.id} article={article} images={images} categories={categories} />
     </>
   );
 }

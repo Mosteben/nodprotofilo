@@ -22,15 +22,16 @@ export function SlugField({
 }) {
   return (
     <Field id="slug" label="الرابط (slug)" error={error} hint={`يظهر في عنوان الصفحة: ${pathPrefix}/${value || "…"}`} required>
-      <div className="flex gap-2">
+      <div className="flex flex-col sm:flex-row gap-2">
         <Input
           {...describedBy("slug", error, "hint")}
           value={value}
           onChange={(e) => onChange(e.target.value)}
           dir="auto"
           maxLength={200}
+          className="min-w-0"
         />
-        <Button type="button" variant="outline" size="sm" className="h-12 shrink-0" onClick={onGenerate}>
+        <Button type="button" variant="outline" size="sm" className="h-11 sm:h-12 shrink-0" onClick={onGenerate}>
           توليد من العنوان
         </Button>
       </div>
