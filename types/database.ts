@@ -71,6 +71,8 @@ export type MessageRow = {
   subject: string | null;
   message: string;
   is_read: boolean;
+  /** Set manually by the admin after replying from their mail app. */
+  replied_at: string | null;
   created_at: string;
 };
 
@@ -213,7 +215,7 @@ export type Database = {
         | "published"
       >;
       media: Table<MediaRow, "user_id" | "alt_text" | "width" | "height">;
-      messages: Table<MessageRow, "is_read" | "name" | "email" | "subject">;
+      messages: Table<MessageRow, "is_read" | "name" | "email" | "subject" | "replied_at">;
       site_settings: Table<SiteSettingsRow, Exclude<keyof SiteSettingsRow, Generated>>;
       gallery_items: Table<GalleryItemRow, Exclude<keyof GalleryItemRow, Generated | "image_url">>;
       resources: Table<ResourceRow, Exclude<keyof ResourceRow, Generated | "title">>;

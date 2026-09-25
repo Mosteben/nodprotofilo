@@ -1,14 +1,13 @@
 import type { Metadata } from "next";
-import { Inbox, MailOpen, Reply } from "lucide-react";
+import { Inbox, MailOpen } from "lucide-react";
 import { requireAdminContext } from "@/lib/auth";
 import { isUuid, orIlikeFilter } from "@/lib/utils";
-import { messageTitle } from "@/lib/messages";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { ListToolbar } from "@/components/admin/ListToolbar";
 import { Pagination, pageRange } from "@/components/admin/Pagination";
 import { MessageList } from "@/components/admin/messages/MessageList";
 import { MessageDetail } from "@/components/admin/messages/MessageDetail";
-import { Button } from "@/components/ui/Button";
+import { ReplyComposer } from "@/components/admin/messages/ReplyComposer";
 import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = { title: "الرسائل" };
@@ -105,12 +104,7 @@ export default async function MessagesPage({ searchParams }: { searchParams: Pro
         >
           {selected ? (
             <MessageDetail key={selected.id} message={selected} closeHref={closeHref}>
-              {selected.email && (
-                <Button href={`mailto:${selected.email}?subject=${encodeURIComponent(`رد: ${messageTitle(selected, 60)}`)}`} size="sm">
-                  <Reply className="h-4 w-4" />
-                  الرد عبر البريد
-                </Button>
-              )}
+              {selected.email && <ReplyComposer message={selected} />}
             </MessageDetail>
           ) : (
             <div className="text-center p-10">

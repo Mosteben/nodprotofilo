@@ -49,6 +49,7 @@ export function MessageList({
                   {messageTitle(m, 90)}
                 </span>
                 {!m.email && <span className="block text-[11px] text-navy/35 mt-0.5">بدون بريد إلكتروني</span>}
+                {m.replied_at && <span className="block text-[11px] text-emerald-700 mt-0.5">✓ تم الرد</span>}
               </span>
             </Link>
           </li>
