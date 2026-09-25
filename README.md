@@ -72,7 +72,7 @@ More background is in [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
 | `/resources` | Published files (PDF, Office, images) and links: search, category filter, download |
 | `/books`, `/books/[slug]` | Published books, purchase / sample links, comments |
 | `/lectures`, `/lectures/[slug]` | YouTube embeds or external lecture links, comments |
-| `/contact` | Contact form saved to the database (validated, spam-protected, rate-limited) |
+| `/contact` | Simple message box: only the message is required, name and e-mail optional (validated, spam-protected, rate-limited) |
 | `/account/register`, `/account/login`, `/account` | Visitor sign-up, sign-in, display name, sign-out |
 | `/sitemap.xml`, `/robots.txt`, `/rss.xml` | Generated from published content |
 
@@ -92,7 +92,7 @@ published content.
 | `/admin/lectures` | YouTube URL (any format) or external link, speaker, date, duration, thumbnail, featured, order, publish, delete |
 | `/admin/media` | Image library: upload (drag & drop, progress), crop/rotate/resize/compress, alt text, copy URL, delete |
 | `/admin/comments` | Approve, unapprove, mark read, delete; filter by status and content type; search |
-| `/admin/messages` | Read/unread, search, filter, open, reply by e-mail, delete |
+| `/admin/messages` | Two-pane inbox: list + reading pane, read/unread, search, filter, delete; reply drafts opened in your own mail app (the site sends no e-mail) and a manual "mark as replied" |
 | `/admin/settings` | Site name and description, contact e-mail, social links |
 | `/admin/appearance` | Homepage content and section visibility; colours, fonts, button and corner styles |
 | `/admin/about` | Everything on the About page, plus the owner's profile |
@@ -173,9 +173,12 @@ All SQL lives in [`supabase/`](supabase). Run the files **in this order**:
 | 1 | `migrations/20260924000000_initial_schema.sql` | Profiles, articles, projects, media, messages, site settings; RLS; `media` bucket | **Required** |
 | 2 | `import_existing_content.sql` | The 4 articles that used to be hard-coded in the site | Recommended |
 | 3 | `migrations/20260925000000_cms_extensions.sql` | Gallery, resources, books, lectures, comments, About content, visitor-account rules; RLS; `resources` bucket. Also imports the previous static books, lectures and gallery images (and the old resources as drafts) | **Required** |
-| 4 | `seed.sql` | Demo articles/projects (slugs start with `demo-`) for trying things out | Optional |
+| 4 | `migrations/20260926000000_rich_text_descriptions.sql` | Allows longer (rich-text HTML) book and lecture descriptions | **Required** |
+| 5 | `migrations/20260926010000_optional_contact_fields.sql` | Contact form: only the message is required (name, e-mail optional); rate limit for messages without an e-mail | **Required** |
+| 6 | `migrations/20260926020000_message_replies.sql` | `replied_at` for the admin's "mark as replied" in the inbox | **Required** |
+| 7 | `seed.sql` | Demo articles/projects (slugs start with `demo-`) for trying things out | Optional |
 
-Then create the admin account (step 5, [below](#admin-account-setup)).
+Then create the admin account ([below](#admin-account-setup)).
 
 **Using the Supabase dashboard (simplest):** open **SQL Editor → New query**, paste the full contents
 of each file in the order above, and click **Run** for each. Each should end with
@@ -186,7 +189,7 @@ of each file in the order above, and click **Run** for each. Each should end wit
 ```bash
 npx supabase login
 npx supabase link --project-ref <your-project-ref>
-npx supabase db push          # applies both files in supabase/migrations, in order
+npx supabase db push          # applies every file in supabase/migrations, in order
 ```
 
 Then run `import_existing_content.sql` (and optionally `seed.sql`) from the SQL editor.
@@ -194,8 +197,9 @@ Then run `import_existing_content.sql` (and optionally `seed.sql`) from the SQL 
 Every script is idempotent: running one again does no harm and never overwrites content you have
 edited.
 
-> **Already set up the first version?** Just run file 3 (`20260925000000_cms_extensions.sql`) once.
-> Nothing needs to be deleted.
+> **Upgrading an existing project?** Run only the migrations you have not run yet, in order
+> (e.g. files 3–6 if you only ran the initial schema, or 4–6 if you already ran the CMS
+> extensions). Nothing needs to be deleted.
 
 **Removing the demo content before going live:**
 
@@ -276,8 +280,10 @@ the Supabase Site URL and Redirect URLs, and redeploy.
   - Comments are rate-limited: 5 per author per 10 minutes, 200 per hour site-wide.
   - The public reads comments through `get_approved_comments()`, which never returns e-mails or user
     ids, and hides names on anonymous comments.
-- **Contact messages** can be read only by admins, and are rate-limited: 3 per e-mail per 10 minutes,
-  100 per hour. Both forms also use a honeypot field and a minimum fill time against bots.
+- **Contact messages** can be read only by admins; visitors can only insert (name/e-mail optional).
+  They are rate-limited: 3 per e-mail per 10 minutes, 10 per 10 minutes site-wide for messages
+  without an e-mail, and 100 per hour overall. Both forms also use a honeypot field and a minimum
+  fill time against bots. Visitors cannot set `is_read` or `replied_at`.
 - **Rich text** is sanitised with an allow-list on save and again on render.
 - **YouTube** embeds are built only from a validated 11-character video id; no pasted HTML is ever
   rendered.
