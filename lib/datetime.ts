@@ -16,6 +16,26 @@ export function formatDate(value: string | Date, style: "long" | "short" = "long
   });
 }
 
+/** Date and time, e.g. for message timestamps. */
+export function formatDateTime(value: string | Date): string {
+  return new Date(value).toLocaleString("ar-EG", {
+    timeZone: SITE_TIME_ZONE,
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  });
+}
+
+/** Compact list timestamp: time for today, otherwise the date. */
+export function formatListDate(value: string | Date, now: Date = new Date()): string {
+  const sameDay = formatDate(value, "short") === formatDate(now, "short");
+  return sameDay
+    ? new Date(value).toLocaleTimeString("ar-EG", { timeZone: SITE_TIME_ZONE, hour: "numeric", minute: "2-digit" })
+    : formatDate(value, "short");
+}
+
 const partsFormatter = new Intl.DateTimeFormat("en-CA", {
   timeZone: SITE_TIME_ZONE,
   year: "numeric",
