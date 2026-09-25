@@ -1,7 +1,7 @@
 "use server";
 
-import { z } from "zod";
 import { createPublicClient } from "@/lib/supabase/public";
+import { contactSchema } from "@/lib/contact";
 import type { FieldErrors } from "./result";
 
 export type ContactState = {
@@ -9,14 +9,9 @@ export type ContactState = {
   message?: string;
   fieldErrors?: FieldErrors;
   values?: Record<string, string>;
+  /** Whether the sent message included an e-mail (to tailor the confirmation). */
+  withEmail?: boolean;
 };
-
-const contactSchema = z.object({
-  name: z.string().trim().min(2, "اكتبي اسمك (حرفان على الأقل).").max(100, "الاسم طويل جدًا."),
-  email: z.string().trim().max(254).pipe(z.email("أدخلي بريدًا إلكترونيًا صحيحًا.")),
-  subject: z.string().trim().min(2, "اكتبي موضوع الرسالة.").max(200, "الموضوع طويل جدًا."),
-  message: z.string().trim().min(10, "الرسالة قصيرة جدًا (10 أحرف على الأقل).").max(5000, "الرسالة طويلة جدًا (5000 حرف كحد أقصى)."),
-});
 
 /** Humans need a few seconds to fill in the form; bots usually don't wait. */
 const MIN_FILL_MS = 3000;
@@ -25,7 +20,6 @@ export async function submitContactMessage(_prev: ContactState, formData: FormDa
   const values = {
     name: String(formData.get("name") ?? ""),
     email: String(formData.get("email") ?? ""),
-    subject: String(formData.get("subject") ?? ""),
     message: String(formData.get("message") ?? ""),
   };
 
@@ -40,23 +34,23 @@ export async function submitContactMessage(_prev: ContactState, formData: FormDa
   if (!parsed.success) {
     const fieldErrors: FieldErrors = {};
     for (const issue of parsed.error.issues) fieldErrors[String(issue.path[0])] ??= issue.message;
-    return { status: "error", message: "راجعي الحقول المظللة.", fieldErrors, values };
+    return { status: "error", message: "راجع/ي الحقول المظللة.", fieldErrors, values };
   }
 
   const supabase = createPublicClient();
   if (!supabase) {
-    return { status: "error", message: "نموذج التواصل غير متاح حاليًا. راسليني عبر البريد الإلكتروني.", values };
+    return { status: "error", message: "إرسال الرسائل غير متاح حاليًا. حاول/ي لاحقًا.", values };
   }
 
   // No .select(): anonymous visitors may insert messages but never read them.
   const { error } = await supabase.from("messages").insert(parsed.data);
   if (error) {
     if (error.code === "P0001" && error.message.includes("rate_limited")) {
-      return { status: "error", message: "تم إرسال عدة رسائل مؤخرًا. انتظري بضع دقائق ثم حاولي مرة أخرى.", values };
+      return { status: "error", message: "وصلت رسائل كثيرة مؤخرًا. انتظر/ي بضع دقائق ثم حاول/ي مرة أخرى.", values };
     }
     console.error("[contact] insert failed", error.code, error.message);
-    return { status: "error", message: "تعذّر إرسال الرسالة الآن. حاولي لاحقًا أو راسليني عبر البريد.", values };
+    return { status: "error", message: "تعذّر إرسال الرسالة الآن. حاول/ي مرة أخرى بعد قليل.", values };
   }
 
-  return { status: "success" };
+  return { status: "success", withEmail: Boolean(parsed.data.email) };
 }

@@ -18,7 +18,7 @@ export default async function MessagesPage({ searchParams }: { searchParams: Pro
   const { page, from, to } = pageRange(params.page);
 
   let query = supabase.from("messages").select("*", { count: "exact" });
-  if (params.q) query = query.or(orIlikeFilter(["name", "email", "subject"], params.q));
+  if (params.q) query = query.or(orIlikeFilter(["name", "email", "subject", "message"], params.q));
   if (params.filter === "unread") query = query.eq("is_read", false);
   if (params.filter === "read") query = query.eq("is_read", true);
 

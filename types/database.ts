@@ -66,9 +66,9 @@ export type MediaRow = {
 
 export type MessageRow = {
   id: string;
-  name: string;
-  email: string;
-  subject: string;
+  name: string | null;
+  email: string | null;
+  subject: string | null;
   message: string;
   is_read: boolean;
   created_at: string;
@@ -213,7 +213,7 @@ export type Database = {
         | "published"
       >;
       media: Table<MediaRow, "user_id" | "alt_text" | "width" | "height">;
-      messages: Table<MessageRow, "is_read">;
+      messages: Table<MessageRow, "is_read" | "name" | "email" | "subject">;
       site_settings: Table<SiteSettingsRow, Exclude<keyof SiteSettingsRow, Generated>>;
       gallery_items: Table<GalleryItemRow, Exclude<keyof GalleryItemRow, Generated | "image_url">>;
       resources: Table<ResourceRow, Exclude<keyof ResourceRow, Generated | "title">>;

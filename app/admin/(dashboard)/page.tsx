@@ -6,6 +6,7 @@ import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { StatusBadge } from "@/components/admin/StatusBadge";
 import { Button } from "@/components/ui/Button";
 import { formatDate } from "@/lib/utils";
+import { messageTitle, senderName } from "@/lib/messages";
 
 export default async function DashboardPage() {
   const { supabase, profile } = await requireAdminContext();
@@ -28,7 +29,7 @@ export default async function DashboardPage() {
       .then((r) => r.data ?? []),
     supabase
       .from("messages")
-      .select("id, name, subject, is_read, created_at")
+      .select("id, name, subject, message, is_read, created_at")
       .order("created_at", { ascending: false })
       .limit(5)
       .then((r) => r.data ?? []),
@@ -127,9 +128,9 @@ export default async function DashboardPage() {
                   >
                     <span className="min-w-0">
                       <span className={`block font-ui text-sm truncate ${m.is_read ? "text-navy/70" : "text-navy font-semibold"}`}>
-                        {m.subject}
+                        {messageTitle(m)}
                       </span>
-                      <span className="block font-ui text-xs text-navy/40 truncate">{m.name}</span>
+                      <span className="block font-ui text-xs text-navy/40 truncate">{senderName(m)}</span>
                     </span>
                     <span className="flex items-center gap-3 shrink-0">
                       <span className="font-ui text-xs text-navy/40 hidden sm:inline">
