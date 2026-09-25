@@ -137,7 +137,17 @@
   }
   .rich-content hr {
     @apply border-0 h-px bg-navy/10 my-12;
-  }}
+  }
+  /* Editor placeholder (Tiptap marks the empty first paragraph). */
+  .rich-content p.is-editor-empty:first-child::before {
+    content: attr(data-placeholder);
+    @apply float-right h-0 pointer-events-none text-navy/35;
+  }
+  /* Selected image inside the editor. */
+  .ProseMirror img.ProseMirror-selectednode {
+    @apply ring-2 ring-gold;
+  }
+}
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {

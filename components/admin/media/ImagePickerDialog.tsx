@@ -60,11 +60,14 @@ export function ImagePickerDialog({
   onOpenChange,
   onSelect,
   title = "اختيار صورة",
+  onClosed,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSelect: (image: PickedImage) => void;
   title?: string;
+  /** Called after closing instead of returning focus to the trigger (e.g. to refocus an editor). */
+  onClosed?: () => void;
 }) {
   function pick(image: PickedImage) {
     onSelect(image);
@@ -78,6 +81,11 @@ export function ImagePickerDialog({
         <Dialog.Content
           dir="rtl"
           aria-describedby={undefined}
+          onCloseAutoFocus={(event) => {
+            if (!onClosed) return;
+            event.preventDefault();
+            onClosed();
+          }}
           className="fixed z-[91] left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[calc(100%-2rem)] max-w-3xl max-h-[90vh] overflow-y-auto rounded-2xl bg-paper p-6 shadow-soft"
         >
           <div className="flex items-center justify-between mb-5">
