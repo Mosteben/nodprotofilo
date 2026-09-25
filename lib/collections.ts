@@ -17,6 +17,8 @@ export type FieldDef =
       suggest?: boolean; // offer existing values (e.g. categories) as suggestions
     }
   | { name: string; label: string; type: "image"; required?: boolean; hint?: string; aspect?: string }
+  /** Rich text (Tiptap HTML, sanitised on save). Legacy plain text is converted on load. */
+  | { name: string; label: string; type: "richtext"; hint?: string }
   | { name: string; label: string; type: "slug"; prefix: string }
   | { name: string; label: string; type: "youtube"; hint?: string }
   /** Upload to the resources bucket; `mode: "record"` also keeps path/name/type/size. */
@@ -115,7 +117,7 @@ export const COLLECTIONS: Record<CollectionKey, CollectionDef> = {
       { name: "title", label: "العنوان", type: "text", required: true, maxLength: 200 },
       { name: "slug", label: "الرابط (slug)", type: "slug", prefix: "/books" },
       { name: "author", label: "المؤلف", type: "text", maxLength: 120 },
-      { name: "description", label: "الوصف", type: "textarea", maxLength: 3000 },
+      { name: "description", label: "الوصف", type: "richtext" },
       { name: "purchase_url", label: "رابط الشراء", type: "url", ltr: true, placeholder: "https://…" },
       { name: "sample_url", label: "فصل تجريبي / معاينة", type: "file", mode: "url", hint: "ارفعي ملفًا (PDF…) أو الصقي رابطًا." },
     ],
@@ -147,7 +149,7 @@ export const COLLECTIONS: Record<CollectionKey, CollectionDef> = {
       { name: "slug", label: "الرابط (slug)", type: "slug", prefix: "/lectures" },
       { name: "youtube_id", label: "رابط يوتيوب", type: "youtube", hint: "الصقي أي رابط يوتيوب (watch أو youtu.be أو embed)." },
       { name: "external_url", label: "رابط خارجي للمحاضرة", type: "url", ltr: true, placeholder: "https://…", hint: "لمحاضرات خارج يوتيوب (Zoom، موقع جامعة…)." },
-      { name: "description", label: "الوصف", type: "textarea", maxLength: 3000 },
+      { name: "description", label: "الوصف", type: "richtext" },
     ],
     side: [
       published,

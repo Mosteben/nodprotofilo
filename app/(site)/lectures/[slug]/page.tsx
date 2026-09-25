@@ -11,6 +11,8 @@ import { jsonLdScript } from "@/lib/json-ld";
 import { Button } from "@/components/ui/Button";
 import { CoverImage } from "@/components/shared/CoverImage";
 import { lectureThumbnail } from "@/components/lectures/LectureCard";
+import { RichText } from "@/components/shared/RichText";
+import { toPlainText } from "@/lib/text";
 import { Comments } from "@/components/comments/Comments";
 
 export const revalidate = 3600;
@@ -27,12 +29,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const image = lectureThumbnail(lecture);
   return {
     title: lecture.title,
-    description: lecture.description ?? lecture.title,
+    description: toPlainText(lecture.description).slice(0, 300) || lecture.title,
     alternates: { canonical: `/lectures/${lecture.slug}` },
     openGraph: {
       type: lecture.youtube_id ? "video.other" : "website",
       title: lecture.title,
-      description: lecture.description ?? undefined,
+      description: toPlainText(lecture.description).slice(0, 300) || undefined,
       images: image ? [{ url: image, alt: lecture.title }] : undefined,
     },
   };
@@ -48,7 +50,7 @@ export default async function LecturePage({ params }: Props) {
         "@context": "https://schema.org",
         "@type": "VideoObject",
         name: lecture.title,
-        description: lecture.description ?? lecture.title,
+        description: toPlainText(lecture.description).slice(0, 300) || lecture.title,
         thumbnailUrl: thumbnail ?? undefined,
         uploadDate: lecture.lecture_date ?? lecture.created_at,
         embedUrl: youTubeEmbedUrl(lecture.youtube_id),
@@ -110,7 +112,7 @@ export default async function LecturePage({ params }: Props) {
           )}
         </ul>
 
-        {lecture.description && <p className="text-lg leading-loose text-ink/80 whitespace-pre-line">{lecture.description}</p>}
+        {lecture.description && <RichText value={lecture.description} />}
 
         {lecture.external_url && (
           <Button href={lecture.external_url} variant="gold" size="md" className="mt-8">

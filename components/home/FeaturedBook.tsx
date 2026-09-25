@@ -4,6 +4,7 @@ import { SectionHeading } from "@/components/ui/SectionHeading";
 import { RevealOnScroll } from "@/components/ui/RevealOnScroll";
 import { Button } from "@/components/ui/Button";
 import { CoverImage } from "@/components/shared/CoverImage";
+import { toPlainText } from "@/lib/text";
 
 export async function FeaturedBook() {
   const book = featuredFirst(await getPublishedBooks())[0];
@@ -23,7 +24,7 @@ export async function FeaturedBook() {
 
         <RevealOnScroll delay={0.15} className="order-1 lg:order-2">
           <SectionHeading eyebrow={book.featured ? "كتاب مميّز" : "من المكتبة"} title={book.title} />
-          {book.description && <p className="text-brown/80 leading-relaxed text-lg mb-8 -mt-8 line-clamp-5">{book.description}</p>}
+          {book.description && <p className="text-brown/80 leading-relaxed text-lg mb-8 -mt-8 line-clamp-5">{toPlainText(book.description)}</p>}
           {(book.author || book.pages || book.price_label) && (
             <div className="flex flex-wrap items-center gap-4 mb-8 font-ui text-sm text-navy/60">
               {book.author && <span>{book.author}</span>}

@@ -10,6 +10,7 @@ import { deleteCollectionItem, saveCollectionItem } from "@/lib/actions/collecti
 import type { FieldErrors } from "@/lib/actions/result";
 import { slugify } from "@/lib/slug";
 import { youTubeWatchUrl } from "@/lib/youtube";
+import { toEditorHtml } from "@/lib/text";
 import { useUnsavedChangesWarning } from "@/lib/hooks";
 import { Button } from "@/components/ui/Button";
 import { Checkbox, Field, Input, Textarea, describedBy } from "@/components/ui/form";
@@ -17,6 +18,7 @@ import { ImageField } from "@/components/admin/media/ImageField";
 import { ConfirmDialog } from "@/components/admin/ConfirmDialog";
 import { SlugField } from "@/components/admin/SlugField";
 import { ResourceFileField } from "./ResourceFileField";
+import { RichTextEditor } from "@/components/admin/RichTextEditor";
 
 type Values = Record<string, string | boolean>;
 type Row = Record<string, unknown>;
@@ -30,6 +32,7 @@ function initialValues(key: CollectionKey, item: Row | null): Values {
     const raw = item?.[field.name];
     if (field.type === "checkbox") values[field.name] = Boolean(raw);
     else if (field.type === "youtube") values[field.name] = raw ? youTubeWatchUrl(String(raw)) : "";
+    else if (field.type === "richtext") values[field.name] = toEditorHtml(raw == null ? "" : String(raw));
     else if (field.type === "file" && field.mode === "record") {
       for (const column of FILE_COLUMNS) values[column] = item?.[column] == null ? "" : String(item[column]);
     } else values[field.name] = raw == null ? "" : String(raw);
@@ -187,6 +190,30 @@ export function CollectionForm({
           <Field key={field.name} id={field.name} label={field.label} hint={field.hint} error={error}>
             <Input {...describedBy(field.name, error, field.hint)} dir="ltr" placeholder="https://www.youtube.com/watch?v=…" value={String(value)} onChange={(e) => set(field.name, e.target.value)} />
           </Field>
+        );
+      case "richtext":
+        return (
+          <div key={field.name} className="space-y-2">
+            <p id={`${field.name}-label`} className="font-ui text-sm font-medium text-navy">
+              {field.label}
+            </p>
+            <RichTextEditor
+              id={field.name}
+              value={String(value)}
+              onChange={(html) => set(field.name, html)}
+              invalid={Boolean(error)}
+              minHeight="min-h-[240px]"
+              ariaLabel={field.label}
+              placeholder="اكتبي الوصف…"
+            />
+            {error ? (
+              <p role="alert" className="font-ui text-sm text-red-600">
+                {error}
+              </p>
+            ) : (
+              field.hint && <p className="font-ui text-xs text-navy/50">{field.hint}</p>
+            )}
+          </div>
         );
       case "textarea":
         return (

@@ -5,6 +5,7 @@ import { z } from "zod";
 import { CACHE_TAGS } from "@/lib/cache-tags";
 import { HOMEPAGE_SECTIONS, type HomepageSection } from "@/lib/site-settings";
 import { ABOUT_ICONS, type AboutIcon } from "@/lib/about";
+import { sanitizeRichText } from "@/lib/sanitize";
 import {
   ACCENT_PALETTES,
   BACKGROUNDS,
@@ -169,7 +170,7 @@ const aboutInputSchema = z.object({
   about_description: text(3000),
   about: z.object({
     imageUrl: optionalUrl.transform((v) => v ?? ""),
-    longBio: text(10000),
+    longBio: z.string().max(50000, "السيرة طويلة جدًا.").transform((v) => sanitizeRichText(v).trim()),
     highlights: item({ icon: z.enum(Object.keys(ABOUT_ICONS) as [AboutIcon, ...AboutIcon[]]), title: text(120).min(1, "العنوان مطلوب."), text: text(1000) }),
     skills: item({ label: text(120).min(1, "اسم المهارة مطلوب."), level: z.number().int().min(0).max(100) }),
     timeline: item({ year: text(40), title: text(160).min(1, "العنوان مطلوب."), description: text(1000) }),

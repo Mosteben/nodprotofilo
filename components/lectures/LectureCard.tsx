@@ -3,6 +3,7 @@ import { PlayCircle, ExternalLink } from "lucide-react";
 import type { LectureRow } from "@/types/database";
 import { youTubeThumbnail } from "@/lib/youtube";
 import { CoverImage } from "@/components/shared/CoverImage";
+import { toPlainText } from "@/lib/text";
 
 export function lectureThumbnail(lecture: LectureRow): string | null {
   return lecture.thumbnail_url ?? (lecture.youtube_id ? youTubeThumbnail(lecture.youtube_id) : null);
@@ -36,7 +37,7 @@ export function LectureCard({ lecture, priority = false }: { lecture: LectureRow
       </div>
       <div className="p-6 flex-1">
         <h3 className="font-display text-lg text-navy mb-2 leading-snug group-hover:text-gold-dark transition-colors">{lecture.title}</h3>
-        {lecture.description && <p className="text-brown/80 text-sm leading-relaxed line-clamp-2">{lecture.description}</p>}
+        {lecture.description && <p className="text-brown/80 text-sm leading-relaxed line-clamp-2">{toPlainText(lecture.description)}</p>}
       </div>
     </Link>
   );

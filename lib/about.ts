@@ -61,7 +61,7 @@ const titled = z.object({ title: str(160), description: str(1000) });
 /** site_settings.about (JSONB). Invalid or missing parts fall back to the original About page. */
 export const aboutSchema = z.object({
   imageUrl: str(2000),
-  longBio: str(10000),
+  longBio: str(50000), // editor HTML (legacy values may be plain text)
   highlights: list(z.object({ icon: z.enum(ICON_KEYS).catch("sparkles"), title: str(120), text: str(1000) }), DEFAULT_HIGHLIGHTS),
   skills: list(z.object({ label: str(120), level: z.number().int().min(0).max(100).catch(50) }), DEFAULT_SKILLS),
   timeline: list(z.object({ year: str(40), title: str(160), description: str(1000) }), DEFAULT_TIMELINE),

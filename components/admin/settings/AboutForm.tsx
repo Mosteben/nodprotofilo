@@ -8,6 +8,8 @@ import { Button } from "@/components/ui/Button";
 import { Field, Input, Select, Textarea, describedBy } from "@/components/ui/form";
 import { ImageField } from "@/components/admin/media/ImageField";
 import { ListEditor } from "./ListEditor";
+import { RichTextEditor } from "@/components/admin/RichTextEditor";
+import { toEditorHtml } from "@/lib/text";
 import { useSettingsForm } from "./useSettingsForm";
 
 type About = SiteContent["about"];
@@ -16,7 +18,7 @@ export function AboutForm({ content }: { content: SiteContent }) {
   const initial: AboutInput = {
     about_title: content.aboutTitle,
     about_description: content.aboutDescription,
-    about: content.about,
+    about: { ...content.about, longBio: toEditorHtml(content.about.longBio) },
   };
   const { values, set, errors, pending, dirty, submit } = useSettingsForm(initial, saveAboutContent, "تم حفظ صفحة «من أنا»");
   const about = values.about as About;
@@ -57,9 +59,23 @@ export function AboutForm({ content }: { content: SiteContent }) {
             <Field id="about_description" label="نبذة قصيرة" error={errors.about_description} hint="تظهر أعلى صفحة «من أنا» وفي قسم «نبذة عني» بالصفحة الرئيسية.">
               <Textarea {...describedBy("about_description", errors.about_description, "hint")} rows={3} value={values.about_description} onChange={(e) => set("about_description", e.target.value)} />
             </Field>
-            <Field id="longBio" label="السيرة الكاملة" error={errors["about.longBio"]} hint="اختياري. افصلي بين الفقرات بسطر فارغ.">
-              <Textarea {...describedBy("longBio", errors["about.longBio"], "hint")} rows={8} value={about.longBio} onChange={(e) => setAbout("longBio", e.target.value)} />
-            </Field>
+            <div className="space-y-2">
+              <p className="font-ui text-sm font-medium text-navy">السيرة الكاملة</p>
+              <RichTextEditor
+                id="longBio"
+                value={about.longBio}
+                onChange={(html) => setAbout("longBio", html)}
+                invalid={Boolean(errors["about.longBio"])}
+                minHeight="min-h-[260px]"
+                placeholder="اكتبي سيرتك بالتفصيل (اختياري)…"
+                ariaLabel="السيرة الكاملة"
+              />
+              {errors["about.longBio"] && (
+                <p role="alert" className="font-ui text-sm text-red-600">
+                  {errors["about.longBio"]}
+                </p>
+              )}
+            </div>
           </div>
         </div>
       </section>

@@ -7,11 +7,18 @@ import { COLLECTIONS, isCollectionKey, type CollectionKey } from "@/lib/collecti
 import { CACHE_TAGS } from "@/lib/cache-tags";
 import { RESOURCES_BUCKET, RESOURCE_PATH_PATTERN, MAX_RESOURCE_BYTES, isResourceType } from "@/lib/resource-files";
 import { parseYouTubeId } from "@/lib/youtube";
+import { sanitizeRichText } from "@/lib/sanitize";
 import { optionalDate, optionalInt, optionalText, optionalUrl, slugField, titleField } from "@/lib/validation";
 import type { CommentContentType } from "@/types/database";
 import { fail, fromDbError, fromZodError, ok, withAdmin, type ActionResult } from "./result";
 
 const flag = z.boolean();
+
+/** Editor HTML: sanitised with the rich-text allow-list; empty → null. */
+const richText = z
+  .string()
+  .max(20000, "النص طويل جدًا.")
+  .transform((v) => sanitizeRichText(v).trim() || null);
 
 const youtubeField = z
   .string()
@@ -58,7 +65,7 @@ const SCHEMAS = {
     title: titleField,
     slug: slugField,
     author: optionalText(120),
-    description: optionalText(3000),
+    description: richText,
     purchase_url: optionalUrl,
     sample_url: optionalUrl,
     cover_image_url: optionalUrl,
@@ -75,7 +82,7 @@ const SCHEMAS = {
       slug: slugField,
       youtube_id: youtubeField,
       external_url: optionalUrl,
-      description: optionalText(3000),
+      description: richText,
       thumbnail_url: optionalUrl,
       category: optionalText(60),
       speaker: optionalText(120),

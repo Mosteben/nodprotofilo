@@ -180,6 +180,7 @@ export function RichTextEditor({
   placeholder = "ابدأ/ي الكتابة…",
   minHeight = "min-h-[420px]",
   allowImages = true,
+  ariaLabel = "المحتوى",
 }: {
   id: string;
   value: string;
@@ -188,6 +189,7 @@ export function RichTextEditor({
   placeholder?: string;
   minHeight?: string;
   allowImages?: boolean;
+  ariaLabel?: string;
 }) {
   const [linkOpen, setLinkOpen] = useState(false);
   const [imageOpen, setImageOpen] = useState(false);
@@ -215,7 +217,7 @@ export function RichTextEditor({
         dir: "rtl",
         role: "textbox",
         "aria-multiline": "true",
-        "aria-label": "المحتوى",
+        "aria-label": ariaLabel,
         class: cn("rich-content px-5 py-5 sm:px-7 outline-none", minHeight),
       },
     },

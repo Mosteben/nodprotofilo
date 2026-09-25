@@ -18,6 +18,8 @@ import { RevealOnScroll } from "@/components/ui/RevealOnScroll";
 import { Timeline } from "@/components/shared/Timeline";
 import { CoverImage } from "@/components/shared/CoverImage";
 import { socialLinks } from "@/components/shared/SocialLinks";
+import { RichText } from "@/components/shared/RichText";
+import { toPlainText } from "@/lib/text";
 import { getPublicProfile, getSiteContent } from "@/lib/data/settings";
 
 export const revalidate = 3600;
@@ -63,7 +65,6 @@ export default async function AboutPage() {
   const [content, profile] = await Promise.all([getSiteContent(), getPublicProfile()]);
   const { about } = content;
   const links = socialLinks(content.social);
-  const paragraphs = about.longBio.split(/\n\s*\n/).map((p) => p.trim()).filter(Boolean);
 
   return (
     <>
@@ -107,14 +108,10 @@ export default async function AboutPage() {
         </div>
       </section>
 
-      {paragraphs.length > 0 && (
+      {toPlainText(about.longBio) && (
         <section className="section-py">
-          <div className="container-narrow px-6 space-y-6">
-            {paragraphs.map((p, i) => (
-              <p key={i} className="text-lg leading-loose text-ink/80 whitespace-pre-line">
-                {p}
-              </p>
-            ))}
+          <div className="container-narrow px-6">
+            <RichText value={about.longBio} />
           </div>
         </section>
       )}

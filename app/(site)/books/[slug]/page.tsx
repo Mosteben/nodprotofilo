@@ -9,6 +9,8 @@ import { jsonLdScript } from "@/lib/json-ld";
 import { Button } from "@/components/ui/Button";
 import { CoverImage } from "@/components/shared/CoverImage";
 import { Comments } from "@/components/comments/Comments";
+import { RichText } from "@/components/shared/RichText";
+import { toPlainText } from "@/lib/text";
 
 export const revalidate = 3600;
 
@@ -21,7 +23,7 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const book = await getBookBySlug(decodeSlug((await params).slug));
   if (!book) return { title: "كتاب غير موجود" };
-  const description = book.description ?? `${book.title}${book.author ? ` — ${book.author}` : ""}`;
+  const description = toPlainText(book.description).slice(0, 300) || `${book.title}${book.author ? ` — ${book.author}` : ""}`;
   return {
     title: book.title,
     description,
@@ -82,7 +84,7 @@ export default async function BookPage({ params }: Props) {
               <span className="inline-block mb-3 text-sm font-ui text-gold-dark bg-gold-dark/10 px-3 py-1 rounded-full">{book.category}</span>
             )}
             <h1 className="font-display text-4xl md:text-5xl text-navy mb-6 leading-tight">{book.title}</h1>
-            {book.description && <p className="text-lg leading-loose text-ink/80 mb-8 whitespace-pre-line">{book.description}</p>}
+            {book.description && <RichText value={book.description} className="mb-8" />}
 
             {facts.length > 0 && (
               <dl className="flex flex-wrap items-center gap-4 mb-10 font-ui">
